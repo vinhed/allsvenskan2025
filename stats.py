@@ -48,7 +48,7 @@ def highlight_top_teams(table_string):
                 lines[i] = lines[i].replace("| 3 |", "| 3 🥉 |")
     return '\n'.join(lines)
 
-table_result = tabulate(table_data, headers=["Position", "Team", "Value"], tablefmt="github")
+table_result = tabulate(table_data, headers=["#", "Team", "Value"], tablefmt="github")
 readme.write(highlight_top_teams(table_result) + "\n\n")
 
 readme.write("## 🔮 Individual Predictions\n")
@@ -65,7 +65,7 @@ for i in range(max_bets):
 for i in range(len(predictions_table)):
     predictions_table[i] = [i + 1] + predictions_table[i]
 
-headers = ["Position"] + list(bets.keys())
+headers = ["#"] + list(bets.keys())
 
 readme.write(tabulate(predictions_table, headers=headers, tablefmt="github") + "\n")
 
