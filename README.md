@@ -3,21 +3,20 @@
 | -------- | ----------------- | ----- |
 | 1        | AIK               | 4     |
 | 2        | Hammarby          | 4     |
-| 3        | Sirius            | 7     |
-| 4        | IF Elfsborg       | 10    |
-| 5        | Malmö FF          | 16    |
-| 6        | Djurgården        | 23    |
-| 7        | Mjällby AIF       | 24    |
-| 8        | IK Sirius         | 32    |
-| 9        | IF Brommapojkarna | 41    |
-| 10       | BK Häcken         | 42    |
-| 11       | IFK Norrköping    | 44    |
-| 12       | GAIS              | 45    |
-| 13       | Degerfors         | 52    |
-| 14       | IFK Göteborg      | 54    |
-| 15       | Östers IF         | 64    |
-| 16       | Halmstads BK      | 66    |
-| 17       | IFK Värnamo       | 72    |
+| 3        | IF Elfsborg       | 10    |
+| 4        | Malmö FF          | 16    |
+| 5        | Djurgården        | 23    |
+| 6        | Mjällby AIF       | 24    |
+| 7        | IK Sirius         | 39    |
+| 8        | IF Brommapojkarna | 41    |
+| 9        | BK Häcken         | 42    |
+| 10       | IFK Norrköping    | 44    |
+| 11       | GAIS              | 45    |
+| 12       | Degerfors         | 52    |
+| 13       | IFK Göteborg      | 54    |
+| 14       | Östers IF         | 64    |
+| 15       | Halmstads BK      | 66    |
+| 16       | IFK Värnamo       | 72    |
 
 # Grabbarns Bet
 ## Henke
@@ -46,7 +45,7 @@
 5. Djurgården
 6. IF Brommapojkarna
 7. Mjällby AIF
-8. Sirius
+8. IK Sirius
 9. IFK Norrköping
 10. Degerfors
 11. BK Häcken
