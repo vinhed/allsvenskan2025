@@ -68,3 +68,6 @@ for i in range(len(predictions_table)):
 headers = ["Position"] + list(bets.keys())
 
 readme.write(tabulate(predictions_table, headers=headers, tablefmt="github") + "\n")
+
+if len(predictions_table) != 16:
+    print(f"!!! Warning: Too many teams ({len(predictions_table)}) in table, someone spelled it wrong!!!")
