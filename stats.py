@@ -32,7 +32,7 @@ print("# Grabbarnas Allsvenska 2025")
 
 sorted_allsvenskan_tip_2025 = {k: v for k, v in sorted(allsvenskan_tip_2025.items(), key=lambda item: item[1])}
 table_data = [(pos + 1, team, value) for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items())]
-print(tabulate(table_data, headers=["Team", "Value"], tablefmt="github") + "\n")
+print(tabulate(table_data, headers=["Position", "Team", "Value"], tablefmt="github") + "\n")
 
 print("# Grabbarns Bet")
 for user in bets.keys():

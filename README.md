@@ -1,23 +1,23 @@
 # Grabbarnas Allsvenska 2025
-|     | Team              | Value |
-| --- | ----------------- | ----- |
-| 1   | AIK               | 4     |
-| 2   | Hammarby          | 4     |
-| 3   | Sirius            | 7     |
-| 4   | IF Elfsborg       | 10    |
-| 5   | Malmö FF          | 16    |
-| 6   | Djurgården        | 23    |
-| 7   | Mjällby AIF       | 24    |
-| 8   | IK Sirius         | 32    |
-| 9   | IF Brommapojkarna | 41    |
-| 10  | BK Häcken         | 42    |
-| 11  | IFK Norrköping    | 44    |
-| 12  | GAIS              | 45    |
-| 13  | Degerfors         | 52    |
-| 14  | IFK Göteborg      | 54    |
-| 15  | Östers IF         | 64    |
-| 16  | Halmstads BK      | 66    |
-| 17  | IFK Värnamo       | 72    |
+| Position | Team              | Value |
+| -------- | ----------------- | ----- |
+| 1        | AIK               | 4     |
+| 2        | Hammarby          | 4     |
+| 3        | Sirius            | 7     |
+| 4        | IF Elfsborg       | 10    |
+| 5        | Malmö FF          | 16    |
+| 6        | Djurgården        | 23    |
+| 7        | Mjällby AIF       | 24    |
+| 8        | IK Sirius         | 32    |
+| 9        | IF Brommapojkarna | 41    |
+| 10       | BK Häcken         | 42    |
+| 11       | IFK Norrköping    | 44    |
+| 12       | GAIS              | 45    |
+| 13       | Degerfors         | 52    |
+| 14       | IFK Göteborg      | 54    |
+| 15       | Östers IF         | 64    |
+| 16       | Halmstads BK      | 66    |
+| 17       | IFK Värnamo       | 72    |
 
 # Grabbarns Bet
 ## Henke
