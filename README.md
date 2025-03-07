@@ -1,5 +1,3 @@
-# Tippning
-
 ## Henke
 - AIK
 - IF Elfsborg
