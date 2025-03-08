@@ -1082,24 +1082,6 @@ if 'prophet' in fun_stats:
                 </div>
     '''
 
-if 'biggest_dark_horse' in fun_stats:
-    html_content += f'''
-                <div class="fun-stat-card">
-                    <div class="fun-stat-title">The Dark Horse</div>
-                    <div class="fun-stat-value">{html.escape(str(fun_stats['biggest_dark_horse']))}</div>
-                    <div class="fun-stat-description">Team predicted to finish {fun_stats['dark_horse_value']} positions higher than consensus thinks</div>
-                </div>
-    '''
-
-if 'most_underrated' in fun_stats:
-    html_content += f'''
-                <div class="fun-stat-card">
-                    <div class="fun-stat-title">The Underrated Team</div>
-                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_underrated']))}</div>
-                    <div class="fun-stat-description">Consensus ranks this team {fun_stats['underrated_value']} positions higher than predictions</div>
-                </div>
-    '''
-
 html_content += '''
             </div>
         </section>

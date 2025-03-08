@@ -22,7 +22,7 @@
 |  16 | Värnamo        |     127 |
 
 ## 🔮 Individual Predictions
-|   # | Henke          | Jonte          | Adrian         | Valentino      | Vincent        | Erik           | Daniel         | William        | Sebastian      |
+|   # | Henke          | Jonathan       | Adrian         | Valentino      | Vincent        | Erik           | Daniel         | William        | Sebastian      |
 |-----|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|----------------|
 |   1 | AIK            | Hammarby       | AIK            | Elfsborg       | Hammarby       | Malmö          | Malmö          | AIK            | Hammarby       |
 |   2 | Elfsborg       | AIK            | Hammarby       | Hammarby       | AIK            | Hammarby       | Djurgården     | Malmö          | Malmö          |

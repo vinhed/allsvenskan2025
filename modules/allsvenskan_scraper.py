@@ -158,129 +158,19 @@ def generate_live_standings_html(standings, bets):
     
     # Get the full standings data if available
     full_standings_data = getattr(get_allsvenskan_standings, 'full_data', None)
+
+    # Uncomment to test
+    # full_standings_data[10]['stats']['gp'] = 1
+
+    matches_played = False
+    for team in full_standings_data:
+        if team['stats']['gp'] != 0:
+            matches_played = True
     
-    html = f"""
-    <!-- Live Standings Section -->
-    <section class="section" id="live-standings-section">
-        <h2 class="section-title"><span class="icon">📊</span> Current Allsvenskan Standings</h2>
-        <p class="section-description">Latest standings as of {formatted_date}</p>
-        
-        <div class="table-wrapper">
-            <table id="live-standings-table">
-                <thead>
-                    <tr>
-                        <th>Position</th>
-                        <th>Team</th>
-                        <th>Matches</th>
-                        <th>W</th>
-                        <th>D</th>
-                        <th>L</th>
-                        <th>GF</th>
-                        <th>GA</th>
-                        <th>GD</th>
-                        <th>Points</th>
-                    </tr>
-                </thead>
-                <tbody>
-    """
-    
-    team_count = len(standings)
-    
-    # If we have the full data, use it for enhanced display
-    if full_standings_data:
-        for team_data in full_standings_data:
-            position = team_data['position']
-            team_name = team_data['displayName']
-            logo_url = team_data['logoUrl']
-            stats = team_data.get('stats', {})
-            
-            # Convert list of stats to dict if needed
-            if isinstance(stats, list):
-                stats_dict = {}
-                for stat in stats:
-                    stat_name = stat.get('name', '')
-                    stat_value = stat.get('value', 0)
-                    stats_dict[stat_name] = stat_value
-                stats = stats_dict
-            
-            # Get statistics
-            matches = stats.get('gp', 0)
-            wins = stats.get('w', 0)
-            draws = stats.get('t', 0)  # t for ties/draws
-            losses = stats.get('l', 0)
-            goals_for = stats.get('gf', 0)
-            goals_against = stats.get('ga', 0)
-            goal_diff = stats.get('d', 0)  # d for goal difference
-            points = stats.get('pts', 0)
-            
-            # Determine row class based on position
-            row_class = ""
-            if position == 1:
-                row_class = "europaleague"  # 1st place - Europa League
-            elif position in [2, 3]:
-                row_class = "conference-league"  # 2nd and 3rd place - Conference League
-            elif position >= team_count - 1:  # Bottom 2 teams (direct relegation)
-                row_class = "relegation-direct"
-            elif position == team_count - 2:  # 3rd from bottom (playoff)
-                row_class = "relegation-playoff"
-            
-            # Create the team cell with logo
-            team_cell = f"""<td>
-                        <div style="display: flex; align-items: center;">
-                            <img src="{logo_url}" alt="{team_name} logo" style="height: 24px; margin-right: 10px;">
-                            <span>{team_name}</span>
-                        </div>
-                    </td>"""
-            
-            html += f"""
-                    <tr class="{row_class}">
-                        <td>{position}</td>
-                        {team_cell}
-                        <td>{matches}</td>
-                        <td>{wins}</td>
-                        <td>{draws}</td>
-                        <td>{losses}</td>
-                        <td>{goals_for}</td>
-                        <td>{goals_against}</td>
-                        <td>{goal_diff}</td>
-                        <td><strong>{points}</strong></td>
-                    </tr>"""
-    else:
-        # Fallback to simple display if full data isn't available
-        for pos, team in enumerate(standings):
-            position_display = pos + 1
-            row_class = ""
-            
-            # Add classes for European qualification and relegation
-            if pos == 0:
-                row_class = "europaleague"  # 1st place - Europa League
-            elif pos == 1 or pos == 2:
-                row_class = "conference-league"  # 2nd and 3rd place - Conference League
-            elif pos >= team_count - 2:  # Bottom 2 teams (direct relegation)
-                row_class = "relegation-direct"
-            elif pos == team_count - 3:  # 3rd from bottom (playoff)
-                row_class = "relegation-playoff"
-            
-            html += f"""
-                    <tr class="{row_class}">
-                        <td>{position_display}</td>
-                        <td>{team}</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                        <td>0</td>
-                    </tr>"""
-    
-    html += """
-                </tbody>
-            </table>
-        </div>
-    </section>
-    
+    if not matches_played:
+        return ""
+
+    html = """
     <!-- Current Leaderboard Section -->
     <section class="section" id="current-leaderboard-section">
         <h2 class="section-title"><span class="icon">🏆</span> Current Prediction Scores</h2>
@@ -322,7 +212,7 @@ def generate_live_standings_html(standings, bets):
         
         html += f"""
                 <tr class="{medal_class}">
-                    <td>{position}{' 🏆' if position <= 3 else ''}</td>
+                    <td>{position}{' 🥇' if position == 1 else (' 🥈' if position == 2 else (' 🥉' if position == 3 else ''))}</td>
                     <td>{user}</td>
                     <td>{score_data['score']} pts</td>
                     <td>{score_data['percent']}%</td>
