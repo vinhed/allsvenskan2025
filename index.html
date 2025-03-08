@@ -38,8 +38,6 @@
             transition: background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
         }
 
-
-
         /* Dark mode color scheme */
         :root {
             --bg-primary: #121212;
@@ -59,6 +57,79 @@
             --relegation-playoff: rgba(201, 127, 81, 1);
             --europaleague: rgba(56, 107, 46, 1);
             --conferenceLeague: rgba(61, 87, 56, 1);
+        }
+
+        /* Additional CSS to add to your existing styles */
+
+        /* Team logos in tables */
+        .team-logo {
+            height: 24px;
+            width: auto;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .team-name-with-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Standings table specific styles */
+        #live-standings-table th,
+        #live-standings-table td {
+            text-align: center;
+        }
+
+        #live-standings-table th:nth-child(2),
+        #live-standings-table td:nth-child(2) {
+            text-align: left;
+        }
+
+        /* Highlight points column */
+        #live-standings-table th:last-child,
+        #live-standings-table td:last-child {
+            font-weight: 700;
+        }
+
+        /* Handle image loading issues */
+        .team-logo.error {
+            display: none;
+        }
+
+        /* Team name highlight on hover */
+        .team-name-with-logo:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive adjustments for standings table */
+        @media (max-width: 768px) {
+            #live-standings-table th:nth-child(3),
+            #live-standings-table th:nth-child(7),
+            #live-standings-table th:nth-child(8),
+            #live-standings-table td:nth-child(3),
+            #live-standings-table td:nth-child(7),
+            #live-standings-table td:nth-child(8) {
+                display: none; /* Hide less important columns on mobile */
+            }
+            
+            .team-logo {
+                height: 18px; /* Smaller logos on mobile */
+            }
+        }
+
+        /* Fallback placeholder for missing images */
+        .team-logo-placeholder {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            margin-right: 10px;
+            text-align: center;
+            line-height: 24px;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
         }
         
         * {
@@ -341,6 +412,8 @@
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
         }
         
         .fun-stat-card:hover {
@@ -365,6 +438,7 @@
             color: var(--text-secondary);
         }
         
+        /* Fun stat card color variations */
         .fun-stat-card:nth-child(1) .fun-stat-value {
             color: var(--accent);
         }
@@ -416,6 +490,55 @@
 
         .fun-stat-card:nth-child(13) .fun-stat-value {
             color: #ffd166;
+        }
+        
+        /* Fun stat card hover effects */
+        .fun-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        .fun-stat-card:nth-child(1):hover::before { background-color: var(--accent); }
+        .fun-stat-card:nth-child(2):hover::before { background-color: var(--accent2); }
+        .fun-stat-card:nth-child(3):hover::before { background-color: var(--accent3); }
+        .fun-stat-card:nth-child(4):hover::before { background-color: #f72585; }
+        .fun-stat-card:nth-child(5):hover::before { background-color: #4361ee; }
+        .fun-stat-card:nth-child(6):hover::before { background-color: #4cc9f0; }
+        .fun-stat-card:nth-child(7):hover::before { background-color: #f77f00; }
+        .fun-stat-card:nth-child(8):hover::before { background-color: #7209b7; }
+        .fun-stat-card:nth-child(9):hover::before { background-color: #00b4d8; }
+        .fun-stat-card:nth-child(10):hover::before { background-color: #fb8500; }
+        .fun-stat-card:nth-child(11):hover::before { background-color: #06d6a0; }
+        .fun-stat-card:nth-child(12):hover::before { background-color: #ef476f; }
+        .fun-stat-card:nth-child(13):hover::before { background-color: #ffd166; }
+        
+        /* Leaderboard styling */
+        #current-leaderboard-table .medal-1 {
+            background-color: rgba(255, 215, 0, 0.3); /* Gold */
+        }
+        
+        #current-leaderboard-table .medal-2 {
+            background-color: rgba(192, 192, 192, 0.3); /* Silver */
+        }
+        
+        #current-leaderboard-table .medal-3 {
+            background-color: rgba(205, 127, 50, 0.3); /* Bronze */
+        }
+        
+        .best-prediction {
+            color: #4cc9f0;
+            font-weight: bold;
+        }
+        
+        .worst-prediction {
+            color: #f72585;
+            font-weight: bold;
         }
         
         /* Legend for relegation zones and European qualifications */
@@ -526,7 +649,7 @@
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Playoff Candidate</div>
-                    <div class="fun-stat-value">Östers</div>
+                    <div class="fun-stat-value">Halmstad</div>
                     <div class="fun-stat-description">Most frequently predicted for relegation playoff (14th place) with 2 votes</div>
                 </div>
     
@@ -544,7 +667,7 @@
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">The Optimist</div>
-                    <div class="fun-stat-value">Daniel</div>
+                    <div class="fun-stat-value">Jonte</div>
                     <div class="fun-stat-description">Ranks top teams higher than others</div>
                 </div>
     
@@ -566,10 +689,418 @@
                     <div class="fun-stat-description">Predictions most aligned with the group consensus</div>
                 </div>
     
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">The Dark Horse</div>
+                    <div class="fun-stat-value">Hammarby</div>
+                    <div class="fun-stat-description">Team predicted to finish 1.2 positions higher than consensus thinks</div>
+                </div>
+    
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">The Underrated Team</div>
+                    <div class="fun-stat-value">Brommapojkarna</div>
+                    <div class="fun-stat-description">Consensus ranks this team 1.4 positions higher than predictions</div>
+                </div>
+    
             </div>
         </section>
+
+    <!-- Live Standings Section -->
+    <section class="section" id="live-standings-section">
+        <h2 class="section-title"><span class="icon">📊</span> Current Allsvenskan Standings</h2>
+        <p class="section-description">Latest standings as of March 08, 2025 at 13:11</p>
         
-        <!-- Current Standings Section -->
+        <div class="table-wrapper">
+            <table id="live-standings-table">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Team</th>
+                        <th>Matches</th>
+                        <th>W</th>
+                        <th>D</th>
+                        <th>L</th>
+                        <th>GF</th>
+                        <th>GA</th>
+                        <th>GD</th>
+                        <th>Points</th>
+                    </tr>
+                </thead>
+                <tbody>
+    
+                    <tr class="europaleague">
+                        <td>1</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FAIK%2Flo739j5e-aik.png" alt="AIK logo" style="height: 24px; margin-right: 10px;">
+                            <span>AIK</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="conference-league">
+                        <td>2</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FBKH%2Flo70ljkw-bkh.png" alt="BK Häcken logo" style="height: 24px; margin-right: 10px;">
+                            <span>BK Häcken</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="conference-league">
+                        <td>3</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FDEIF%2Flo70mdul-deif.png" alt="Degerfors IF logo" style="height: 24px; margin-right: 10px;">
+                            <span>Degerfors IF</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td>4</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FDIF%2Flo8dlmz8-Djurgrden.png" alt="Djurgården logo" style="height: 24px; margin-right: 10px;">
+                            <span>Djurgården</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td>5</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FGAIS%2Flo72z1bx-gais.png" alt="GAIS logo" style="height: 24px; margin-right: 10px;">
+                            <span>GAIS</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td>6</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FHBK%2Flo70nff2-hbk.png" alt="Halmstads BK logo" style="height: 24px; margin-right: 10px;">
+                            <span>Halmstads BK</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td>7</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FHAM%2Flopo2qqr-hammarby-2.png" alt="Hammarby logo" style="height: 24px; margin-right: 10px;">
+                            <span>Hammarby</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td>8</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FIFBP%2Fle8buz9z-BPlogoguldtransparent.png" alt="BP logo" style="height: 24px; margin-right: 10px;">
+                            <span>BP</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td>9</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FIFE%2Flo70p360-ife.png" alt="IF Elfsborg logo" style="height: 24px; margin-right: 10px;">
+                            <span>IF Elfsborg</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td>10</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FGBG%2Flo8dlo50-ifkgoteborgfotboll.png" alt="IFK Göteborg logo" style="height: 24px; margin-right: 10px;">
+                            <span>IFK Göteborg</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td>11</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FNOR%2Flo70rrkn-nor.png" alt="IFK Norrköping logo" style="height: 24px; margin-right: 10px;">
+                            <span>IFK Norrköping</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td>12</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FVARN%2Flo72dctd-varn.png" alt="IFK Värnamo logo" style="height: 24px; margin-right: 10px;">
+                            <span>IFK Värnamo</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="">
+                        <td>13</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FIKS%2Flo70q4e1-iks.png" alt="IK Sirius logo" style="height: 24px; margin-right: 10px;">
+                            <span>IK Sirius</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="relegation-playoff">
+                        <td>14</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FMFF%2Flo70qypl-mff.png" alt="Malmö FF logo" style="height: 24px; margin-right: 10px;">
+                            <span>Malmö FF</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="relegation-direct">
+                        <td>15</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FMAIF%2Flfsbc2d2-Mjallby.png" alt="Mjällby AIF logo" style="height: 24px; margin-right: 10px;">
+                            <span>Mjällby AIF</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                    <tr class="relegation-direct">
+                        <td>16</td>
+                        <td>
+                        <div style="display: flex; align-items: center;">
+                            <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FOIF%2Flo734oh6-oster.png" alt="Östers IF logo" style="height: 24px; margin-right: 10px;">
+                            <span>Östers IF</span>
+                        </div>
+                    </td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td><strong>0</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    
+    <!-- Current Leaderboard Section -->
+    <section class="section" id="current-leaderboard-section">
+        <h2 class="section-title"><span class="icon">🏆</span> Current Prediction Scores</h2>
+        <p class="section-description">Based on current standings. Higher scores are better!</p>
+        
+        <div class="table-wrapper">
+            <table id="current-leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Position</th>
+                        <th>Participant</th>
+                        <th>Score</th>
+                        <th>Percentage</th>
+                        <th>Best Prediction</th>
+                        <th>Worst Prediction</th>
+                    </tr>
+                </thead>
+                <tbody>
+    
+                <tr class="medal-1">
+                    <td>1 🏆</td>
+                    <td>Adrian</td>
+                    <td>121 pts</td>
+                    <td>94.5%</td>
+                    <td class="best-prediction">AIK (P:1, A:1)</td>
+                    <td class="worst-prediction">Hammarby (P:2, A:7)</td>
+                </tr>
+                <tr class="medal-2">
+                    <td>2 🏆</td>
+                    <td>William</td>
+                    <td>120 pts</td>
+                    <td>93.8%</td>
+                    <td class="best-prediction">AIK (P:1, A:1)</td>
+                    <td class="worst-prediction">GAIS (P:10, A:5)</td>
+                </tr>
+                <tr class="medal-3">
+                    <td>3 🏆</td>
+                    <td>Daniel</td>
+                    <td>117 pts</td>
+                    <td>91.4%</td>
+                    <td class="best-prediction">GAIS (P:6, A:5)</td>
+                    <td class="worst-prediction">Hammarby (P:3, A:7)</td>
+                </tr>
+                <tr class="">
+                    <td>4</td>
+                    <td>Henke</td>
+                    <td>116 pts</td>
+                    <td>90.6%</td>
+                    <td class="best-prediction">AIK (P:1, A:1)</td>
+                    <td class="worst-prediction">GAIS (P:11, A:5)</td>
+                </tr>
+                <tr class="">
+                    <td>5</td>
+                    <td>Erik</td>
+                    <td>115 pts</td>
+                    <td>89.8%</td>
+                    <td class="best-prediction">Djurgården (P:3, A:4)</td>
+                    <td class="worst-prediction">Hammarby (P:2, A:7)</td>
+                </tr>
+                <tr class="">
+                    <td>6</td>
+                    <td>Valentino</td>
+                    <td>114 pts</td>
+                    <td>89.1%</td>
+                    <td class="best-prediction">Djurgården (P:4, A:4)</td>
+                    <td class="worst-prediction">GAIS (P:12, A:5)</td>
+                </tr>
+                <tr class="">
+                    <td>7</td>
+                    <td>Sebastian</td>
+                    <td>114 pts</td>
+                    <td>89.1%</td>
+                    <td class="best-prediction">AIK (P:3, A:1)</td>
+                    <td class="worst-prediction">Hammarby (P:1, A:7)</td>
+                </tr>
+                <tr class="">
+                    <td>8</td>
+                    <td>Jonte</td>
+                    <td>113 pts</td>
+                    <td>88.3%</td>
+                    <td class="best-prediction">AIK (P:2, A:1)</td>
+                    <td class="worst-prediction">GAIS (P:12, A:5)</td>
+                </tr>
+                <tr class="">
+                    <td>9</td>
+                    <td>Vincent</td>
+                    <td>113 pts</td>
+                    <td>88.3%</td>
+                    <td class="best-prediction">AIK (P:2, A:1)</td>
+                    <td class="worst-prediction">Hammarby (P:1, A:7)</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    
+        <!-- Average Standings Section -->
         <section class="section">
             <h2 class="section-title"><span class="icon">📊</span> Average Standings</h2>
             <p class="section-description">Calculated based on everyone's predictions. Lower score indicates higher collective ranking.</p>
@@ -893,7 +1424,7 @@
     </div>
     
     <footer>
-        <div>Updated on March 08, 2025 at 12:33</div>
+        <div>Updated on March 08, 2025 at 13:11</div>
         <div>Allsvenskan 2025 Prediction League</div>
     </footer>
 
@@ -905,11 +1436,18 @@
             const standingsTable = document.getElementById('standings-table');
             if (!predictionsTable || !standingsTable) return;
             
+            // Live standings table (optional)
+            const liveStandingsTable = document.getElementById('live-standings-table');
+            
             // Get all cells in the predictions table (excluding header and position column)
             const predictionCells = predictionsTable.querySelectorAll('tbody td:not(:first-child)');
             
-            // Get all team name cells in the standings table (second column)
+            // Get all team name cells in the standings tables (second column)
             const standingTeamCells = standingsTable.querySelectorAll('tbody td:nth-child(2)');
+            
+            // Get all team cells from live standings - need to handle the new structure with logos
+            const liveStandingTeamCells = liveStandingsTable ? 
+                liveStandingsTable.querySelectorAll('tbody td:nth-child(2)') : [];
             
             // For each cell in predictions table, add mouseenter and mouseleave event listeners
             predictionCells.forEach(cell => {
@@ -919,65 +1457,125 @@
                     // Skip if empty cell
                     if (!teamName) return;
                     
-                    // Find all cells with the same team name in predictions and highlight them
-                    predictionCells.forEach(otherCell => {
-                        if (otherCell.textContent.trim() === teamName) {
-                            otherCell.classList.add('team-highlight');
-                        }
-                    });
-                    
-                    // Find the team in standings table and highlight it
-                    standingTeamCells.forEach(teamCell => {
-                        if (teamCell.textContent.trim() === teamName) {
-                            // Highlight the team cell
-                            teamCell.classList.add('team-highlight');
-                            // Also highlight position and score cells (siblings)
-                            teamCell.previousElementSibling?.classList.add('team-highlight');
-                            teamCell.nextElementSibling?.classList.add('team-highlight');
-                        }
-                    });
+                    // Highlight this team across all tables
+                    highlightTeam(teamName);
                 });
                 
                 cell.addEventListener('mouseleave', function() {
-                    // Remove highlight from all cells in both tables
-                    predictionCells.forEach(otherCell => {
-                        otherCell.classList.remove('team-highlight');
-                    });
-                    
-                    standingsTable.querySelectorAll('td.team-highlight').forEach(cell => {
-                        cell.classList.remove('team-highlight');
-                    });
+                    // Remove highlight from all cells in all tables
+                    removeAllHighlights();
                 });
             });
             
-            // Also allow highlighting from standings table to predictions table
+            // Allow highlighting from consensus standings table to predictions table
             standingTeamCells.forEach(cell => {
                 cell.addEventListener('mouseenter', function() {
                     const teamName = this.textContent.trim();
                     
-                    // Highlight this team row in standings
-                    this.classList.add('team-highlight');
-                    this.previousElementSibling?.classList.add('team-highlight');
-                    this.nextElementSibling?.classList.add('team-highlight');
-                    
-                    // Find all cells with the same team name in predictions and highlight them
-                    predictionCells.forEach(predCell => {
-                        if (predCell.textContent.trim() === teamName) {
-                            predCell.classList.add('team-highlight');
-                        }
-                    });
+                    // Highlight this team across all tables
+                    highlightTeam(teamName);
                 });
                 
                 cell.addEventListener('mouseleave', function() {
-                    // Remove highlight from all cells in both tables
-                    predictionCells.forEach(otherCell => {
-                        otherCell.classList.remove('team-highlight');
+                    // Remove highlight from all cells in all tables
+                    removeAllHighlights();
+                });
+            });
+            
+            // Allow highlighting from live standings table to other tables
+            if (liveStandingTeamCells.length > 0) {
+                liveStandingTeamCells.forEach(cell => {
+                    cell.addEventListener('mouseenter', function() {
+                        // Handle both old and new format - the cell might contain just text or a div with an image and span
+                        let teamName;
+                        const teamNameSpan = cell.querySelector('.team-name-with-logo span');
+                        
+                        if (teamNameSpan) {
+                            // New format with logo
+                            teamName = teamNameSpan.textContent.trim();
+                        } else {
+                            // Old format - direct text
+                            teamName = cell.textContent.trim();
+                        }
+                        
+                        if (!teamName) return;
+                        
+                        // Highlight this team across all tables
+                        highlightTeam(teamName);
                     });
                     
-                    standingsTable.querySelectorAll('td.team-highlight').forEach(highlightedCell => {
-                        highlightedCell.classList.remove('team-highlight');
+                    cell.addEventListener('mouseleave', function() {
+                        // Remove highlight from all cells in all tables
+                        removeAllHighlights();
                     });
                 });
+            }
+            
+            // Function to highlight a team across all tables
+            function highlightTeam(teamName) {
+                // Find all cells with the same team name in predictions and highlight them
+                predictionCells.forEach(predCell => {
+                    if (predCell.textContent.trim() === teamName) {
+                        predCell.classList.add('team-highlight');
+                    }
+                });
+                
+                // Find the team in consensus standings table and highlight it
+                standingTeamCells.forEach(teamCell => {
+                    if (teamCell.textContent.trim() === teamName) {
+                        // Highlight the team cell
+                        teamCell.classList.add('team-highlight');
+                        // Also highlight position and score cells (siblings)
+                        teamCell.previousElementSibling?.classList.add('team-highlight');
+                        teamCell.nextElementSibling?.classList.add('team-highlight');
+                    }
+                });
+                
+                // Find the team in live standings table and highlight it
+                if (liveStandingTeamCells.length > 0) {
+                    liveStandingTeamCells.forEach(teamCell => {
+                        // Check for both formats - either direct text or div with span
+                        const teamSpan = teamCell.querySelector('.team-name-with-logo span');
+                        const cellTeamName = teamSpan ? teamSpan.textContent.trim() : teamCell.textContent.trim();
+                        
+                        if (cellTeamName === teamName) {
+                            // Highlight the entire row for better visibility
+                            const row = teamCell.closest('tr');
+                            if (row) {
+                                row.querySelectorAll('td').forEach(td => {
+                                    td.classList.add('team-highlight');
+                                });
+                            } else {
+                                // Fallback to just highlighting the team cell
+                                teamCell.classList.add('team-highlight');
+                                teamCell.previousElementSibling?.classList.add('team-highlight');
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Function to remove all highlights
+            function removeAllHighlights() {
+                document.querySelectorAll('.team-highlight').forEach(highlightedCell => {
+                    highlightedCell.classList.remove('team-highlight');
+                });
+            }
+            
+            // Handle image loading errors for team logos
+            document.querySelectorAll('.team-logo').forEach(img => {
+                img.onerror = function() {
+                    // Create a placeholder with team initials
+                    const teamName = img.alt.replace(' logo', '');
+                    const initials = teamName.split(' ').map(word => word[0]).join('');
+                    
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'team-logo-placeholder';
+                    placeholder.textContent = initials;
+                    
+                    // Replace the image with the placeholder
+                    img.parentNode.replaceChild(placeholder, img);
+                };
             });
         }
 

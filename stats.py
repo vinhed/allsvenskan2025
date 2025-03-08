@@ -2,12 +2,15 @@ from tabulate import tabulate
 from datetime import datetime
 import html
 from collections import Counter
-import random  # For selecting one person randomly when there are ties
+import random
+import sys
 
+# Main script starts here
 allsvenskan_tip_2025 = {}
 html_output = open("index.html", "w", encoding='utf8')
 readme = open("README.md", "w", encoding='utf8')
 
+print("Loading bets and calculating consensus rankings...")
 with open('bets', 'r', encoding='utf8') as f:
     bets = {}
     current_user = None
@@ -48,7 +51,7 @@ for score in sorted(grouped_by_score.keys()):
     for team in sorted(grouped_by_score[score]):
         sorted_allsvenskan_tip_2025[team] = score
 
-# Keep original README generation for compatibility
+# Generate README content (unchanged from original)
 readme.write("# 🏆 Grabbarnas Allsvenskan 2025 🏆\n\n")
 readme.write("## 📊 Current Standings\n`Calculated based on everyones prediction (lower score is better)`\n")
 table_data = [(pos+1, team, value) for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items())]
@@ -95,8 +98,10 @@ def format_team_list(teams_list):
     else:
         return ", ".join(teams_list[:-1]) + f" & {teams_list[-1]}"
 
-# Calculate additional fun stats with correct relegation format
+# Calculate additional fun stats
 def calculate_fun_stats(bets, sorted_standings):
+    # [The original fun_stats calculation function - unchanged]
+    # ... [code remains unchanged] ...
     stats = {}
     
     # Flatten all predictions into a single list
@@ -322,7 +327,39 @@ def calculate_fun_stats(bets, sorted_standings):
     
     return stats
 
+# Calculate fun stats
+print("Calculating fun statistics...")
 fun_stats = calculate_fun_stats(bets, sorted_allsvenskan_tip_2025)
+
+# Try to fetch current standings
+print("Fetching current Allsvenskan standings...")
+try:
+    # Import the scraper module
+    sys.path.append('modules')
+    from modules.allsvenskan_scraper import get_allsvenskan_standings, generate_live_standings_html
+    
+    # Fetch current standings
+    current_standings = get_allsvenskan_standings()
+    
+    if not current_standings:
+        print("! Could not fetch current standings from API - using fallback data")
+    
+    if current_standings:
+        print(f"✓ Successfully fetched current standings with {len(current_standings)} teams")
+    else:
+        print("! Could not fetch any standings data - check your implementation")
+except Exception as e:
+    print(f"! Error importing or using API module: {e}")
+    current_standings = []
+
+# Generate HTML for live standings section
+live_standings_html = ""
+if current_standings:
+    try:
+        live_standings_html = generate_live_standings_html(current_standings, bets)
+        print("✓ Generated live standings and leaderboard HTML")
+    except Exception as e:
+        print(f"! Error generating live standings HTML: {e}")
 
 # Generate Dark Mode HTML with updated fun statistics
 html_content = '''<!DOCTYPE html>
@@ -365,8 +402,6 @@ html_content = '''<!DOCTYPE html>
             transition: background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
         }
 
-
-
         /* Dark mode color scheme */
         :root {
             --bg-primary: #121212;
@@ -386,6 +421,79 @@ html_content = '''<!DOCTYPE html>
             --relegation-playoff: rgba(201, 127, 81, 1);
             --europaleague: rgba(56, 107, 46, 1);
             --conferenceLeague: rgba(61, 87, 56, 1);
+        }
+
+        /* Additional CSS to add to your existing styles */
+
+        /* Team logos in tables */
+        .team-logo {
+            height: 24px;
+            width: auto;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        .team-name-with-logo {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Standings table specific styles */
+        #live-standings-table th,
+        #live-standings-table td {
+            text-align: center;
+        }
+
+        #live-standings-table th:nth-child(2),
+        #live-standings-table td:nth-child(2) {
+            text-align: left;
+        }
+
+        /* Highlight points column */
+        #live-standings-table th:last-child,
+        #live-standings-table td:last-child {
+            font-weight: 700;
+        }
+
+        /* Handle image loading issues */
+        .team-logo.error {
+            display: none;
+        }
+
+        /* Team name highlight on hover */
+        .team-name-with-logo:hover {
+            opacity: 0.8;
+        }
+
+        /* Responsive adjustments for standings table */
+        @media (max-width: 768px) {
+            #live-standings-table th:nth-child(3),
+            #live-standings-table th:nth-child(7),
+            #live-standings-table th:nth-child(8),
+            #live-standings-table td:nth-child(3),
+            #live-standings-table td:nth-child(7),
+            #live-standings-table td:nth-child(8) {
+                display: none; /* Hide less important columns on mobile */
+            }
+            
+            .team-logo {
+                height: 18px; /* Smaller logos on mobile */
+            }
+        }
+
+        /* Fallback placeholder for missing images */
+        .team-logo-placeholder {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            margin-right: 10px;
+            text-align: center;
+            line-height: 24px;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
         }
         
         * {
@@ -668,6 +776,8 @@ html_content = '''<!DOCTYPE html>
             border-radius: 8px;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
             transition: transform 0.2s ease;
+            position: relative;
+            overflow: hidden;
         }
         
         .fun-stat-card:hover {
@@ -692,6 +802,7 @@ html_content = '''<!DOCTYPE html>
             color: var(--text-secondary);
         }
         
+        /* Fun stat card color variations */
         .fun-stat-card:nth-child(1) .fun-stat-value {
             color: var(--accent);
         }
@@ -743,6 +854,55 @@ html_content = '''<!DOCTYPE html>
 
         .fun-stat-card:nth-child(13) .fun-stat-value {
             color: #ffd166;
+        }
+        
+        /* Fun stat card hover effects */
+        .fun-stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: transparent;
+            transition: background-color 0.3s ease;
+        }
+
+        .fun-stat-card:nth-child(1):hover::before { background-color: var(--accent); }
+        .fun-stat-card:nth-child(2):hover::before { background-color: var(--accent2); }
+        .fun-stat-card:nth-child(3):hover::before { background-color: var(--accent3); }
+        .fun-stat-card:nth-child(4):hover::before { background-color: #f72585; }
+        .fun-stat-card:nth-child(5):hover::before { background-color: #4361ee; }
+        .fun-stat-card:nth-child(6):hover::before { background-color: #4cc9f0; }
+        .fun-stat-card:nth-child(7):hover::before { background-color: #f77f00; }
+        .fun-stat-card:nth-child(8):hover::before { background-color: #7209b7; }
+        .fun-stat-card:nth-child(9):hover::before { background-color: #00b4d8; }
+        .fun-stat-card:nth-child(10):hover::before { background-color: #fb8500; }
+        .fun-stat-card:nth-child(11):hover::before { background-color: #06d6a0; }
+        .fun-stat-card:nth-child(12):hover::before { background-color: #ef476f; }
+        .fun-stat-card:nth-child(13):hover::before { background-color: #ffd166; }
+        
+        /* Leaderboard styling */
+        #current-leaderboard-table .medal-1 {
+            background-color: rgba(255, 215, 0, 0.3); /* Gold */
+        }
+        
+        #current-leaderboard-table .medal-2 {
+            background-color: rgba(192, 192, 192, 0.3); /* Silver */
+        }
+        
+        #current-leaderboard-table .medal-3 {
+            background-color: rgba(205, 127, 50, 0.3); /* Bronze */
+        }
+        
+        .best-prediction {
+            color: #4cc9f0;
+            font-weight: bold;
+        }
+        
+        .worst-prediction {
+            color: #f72585;
+            font-weight: bold;
         }
         
         /* Legend for relegation zones and European qualifications */
@@ -922,11 +1082,36 @@ if 'prophet' in fun_stats:
                 </div>
     '''
 
+if 'biggest_dark_horse' in fun_stats:
+    html_content += f'''
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">The Dark Horse</div>
+                    <div class="fun-stat-value">{html.escape(str(fun_stats['biggest_dark_horse']))}</div>
+                    <div class="fun-stat-description">Team predicted to finish {fun_stats['dark_horse_value']} positions higher than consensus thinks</div>
+                </div>
+    '''
+
+if 'most_underrated' in fun_stats:
+    html_content += f'''
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">The Underrated Team</div>
+                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_underrated']))}</div>
+                    <div class="fun-stat-description">Consensus ranks this team {fun_stats['underrated_value']} positions higher than predictions</div>
+                </div>
+    '''
+
 html_content += '''
             </div>
         </section>
-        
-        <!-- Current Standings Section -->
+'''
+
+# Insert live standings section if available
+if live_standings_html:
+    html_content += live_standings_html
+
+# Continue with the average standings section        
+html_content += '''
+        <!-- Average Standings Section -->
         <section class="section">
             <h2 class="section-title"><span class="icon">📊</span> Average Standings</h2>
             <p class="section-description">Calculated based on everyone's predictions. Lower score indicates higher collective ranking.</p>
@@ -1053,11 +1238,18 @@ html_content += '''                    </tbody>
             const standingsTable = document.getElementById('standings-table');
             if (!predictionsTable || !standingsTable) return;
             
+            // Live standings table (optional)
+            const liveStandingsTable = document.getElementById('live-standings-table');
+            
             // Get all cells in the predictions table (excluding header and position column)
             const predictionCells = predictionsTable.querySelectorAll('tbody td:not(:first-child)');
             
-            // Get all team name cells in the standings table (second column)
+            // Get all team name cells in the standings tables (second column)
             const standingTeamCells = standingsTable.querySelectorAll('tbody td:nth-child(2)');
+            
+            // Get all team cells from live standings - need to handle the new structure with logos
+            const liveStandingTeamCells = liveStandingsTable ? 
+                liveStandingsTable.querySelectorAll('tbody td:nth-child(2)') : [];
             
             // For each cell in predictions table, add mouseenter and mouseleave event listeners
             predictionCells.forEach(cell => {
@@ -1067,65 +1259,125 @@ html_content += '''                    </tbody>
                     // Skip if empty cell
                     if (!teamName) return;
                     
-                    // Find all cells with the same team name in predictions and highlight them
-                    predictionCells.forEach(otherCell => {
-                        if (otherCell.textContent.trim() === teamName) {
-                            otherCell.classList.add('team-highlight');
-                        }
-                    });
-                    
-                    // Find the team in standings table and highlight it
-                    standingTeamCells.forEach(teamCell => {
-                        if (teamCell.textContent.trim() === teamName) {
-                            // Highlight the team cell
-                            teamCell.classList.add('team-highlight');
-                            // Also highlight position and score cells (siblings)
-                            teamCell.previousElementSibling?.classList.add('team-highlight');
-                            teamCell.nextElementSibling?.classList.add('team-highlight');
-                        }
-                    });
+                    // Highlight this team across all tables
+                    highlightTeam(teamName);
                 });
                 
                 cell.addEventListener('mouseleave', function() {
-                    // Remove highlight from all cells in both tables
-                    predictionCells.forEach(otherCell => {
-                        otherCell.classList.remove('team-highlight');
-                    });
-                    
-                    standingsTable.querySelectorAll('td.team-highlight').forEach(cell => {
-                        cell.classList.remove('team-highlight');
-                    });
+                    // Remove highlight from all cells in all tables
+                    removeAllHighlights();
                 });
             });
             
-            // Also allow highlighting from standings table to predictions table
+            // Allow highlighting from consensus standings table to predictions table
             standingTeamCells.forEach(cell => {
                 cell.addEventListener('mouseenter', function() {
                     const teamName = this.textContent.trim();
                     
-                    // Highlight this team row in standings
-                    this.classList.add('team-highlight');
-                    this.previousElementSibling?.classList.add('team-highlight');
-                    this.nextElementSibling?.classList.add('team-highlight');
-                    
-                    // Find all cells with the same team name in predictions and highlight them
-                    predictionCells.forEach(predCell => {
-                        if (predCell.textContent.trim() === teamName) {
-                            predCell.classList.add('team-highlight');
-                        }
-                    });
+                    // Highlight this team across all tables
+                    highlightTeam(teamName);
                 });
                 
                 cell.addEventListener('mouseleave', function() {
-                    // Remove highlight from all cells in both tables
-                    predictionCells.forEach(otherCell => {
-                        otherCell.classList.remove('team-highlight');
+                    // Remove highlight from all cells in all tables
+                    removeAllHighlights();
+                });
+            });
+            
+            // Allow highlighting from live standings table to other tables
+            if (liveStandingTeamCells.length > 0) {
+                liveStandingTeamCells.forEach(cell => {
+                    cell.addEventListener('mouseenter', function() {
+                        // Handle both old and new format - the cell might contain just text or a div with an image and span
+                        let teamName;
+                        const teamNameSpan = cell.querySelector('.team-name-with-logo span');
+                        
+                        if (teamNameSpan) {
+                            // New format with logo
+                            teamName = teamNameSpan.textContent.trim();
+                        } else {
+                            // Old format - direct text
+                            teamName = cell.textContent.trim();
+                        }
+                        
+                        if (!teamName) return;
+                        
+                        // Highlight this team across all tables
+                        highlightTeam(teamName);
                     });
                     
-                    standingsTable.querySelectorAll('td.team-highlight').forEach(highlightedCell => {
-                        highlightedCell.classList.remove('team-highlight');
+                    cell.addEventListener('mouseleave', function() {
+                        // Remove highlight from all cells in all tables
+                        removeAllHighlights();
                     });
                 });
+            }
+            
+            // Function to highlight a team across all tables
+            function highlightTeam(teamName) {
+                // Find all cells with the same team name in predictions and highlight them
+                predictionCells.forEach(predCell => {
+                    if (predCell.textContent.trim() === teamName) {
+                        predCell.classList.add('team-highlight');
+                    }
+                });
+                
+                // Find the team in consensus standings table and highlight it
+                standingTeamCells.forEach(teamCell => {
+                    if (teamCell.textContent.trim() === teamName) {
+                        // Highlight the team cell
+                        teamCell.classList.add('team-highlight');
+                        // Also highlight position and score cells (siblings)
+                        teamCell.previousElementSibling?.classList.add('team-highlight');
+                        teamCell.nextElementSibling?.classList.add('team-highlight');
+                    }
+                });
+                
+                // Find the team in live standings table and highlight it
+                if (liveStandingTeamCells.length > 0) {
+                    liveStandingTeamCells.forEach(teamCell => {
+                        // Check for both formats - either direct text or div with span
+                        const teamSpan = teamCell.querySelector('.team-name-with-logo span');
+                        const cellTeamName = teamSpan ? teamSpan.textContent.trim() : teamCell.textContent.trim();
+                        
+                        if (cellTeamName === teamName) {
+                            // Highlight the entire row for better visibility
+                            const row = teamCell.closest('tr');
+                            if (row) {
+                                row.querySelectorAll('td').forEach(td => {
+                                    td.classList.add('team-highlight');
+                                });
+                            } else {
+                                // Fallback to just highlighting the team cell
+                                teamCell.classList.add('team-highlight');
+                                teamCell.previousElementSibling?.classList.add('team-highlight');
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Function to remove all highlights
+            function removeAllHighlights() {
+                document.querySelectorAll('.team-highlight').forEach(highlightedCell => {
+                    highlightedCell.classList.remove('team-highlight');
+                });
+            }
+            
+            // Handle image loading errors for team logos
+            document.querySelectorAll('.team-logo').forEach(img => {
+                img.onerror = function() {
+                    // Create a placeholder with team initials
+                    const teamName = img.alt.replace(' logo', '');
+                    const initials = teamName.split(' ').map(word => word[0]).join('');
+                    
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'team-logo-placeholder';
+                    placeholder.textContent = initials;
+                    
+                    // Replace the image with the placeholder
+                    img.parentNode.replaceChild(placeholder, img);
+                };
             });
         }
 
@@ -1140,10 +1392,13 @@ html_output.write(html_content)
 html_output.close()
 readme.close()
 
-print("✓ Successfully generated files with improved relegation statistics and European qualification!")
+print("✓ Successfully generated files with improved stats and Allsvenskan standings!")
 print("  - index.html: Dark mode design with proper relegation highlighting and European qualification")
 print("  - README.md: Original GitHub format preserved")
-print("  - Ties in standings are now sorted alphabetically")
-print("  - Fun stats now only show one person for individual stats")
-print("  - Only People's Champion and Direct Relegation Favorite can have multiple teams")
-    
+if current_standings:
+    print(f"  - Current Allsvenskan standings for {len(current_standings)} teams added")
+    print("  - Added live prediction scores based on current standings")
+else:
+    print("  - Could not fetch current Allsvenskan standings")
+print("  - Added team highlighting that works across all tables")
+print("  - Fun stats now include The Dark Horse and The Underrated Team")
