@@ -601,6 +601,207 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Enhanced team logo styling */
+        .team-logo {
+            height: 24px;
+            width: 24px;
+            object-fit: contain;
+            margin-right: 8px;
+            vertical-align: middle;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2px;
+        }
+
+        .team-name-with-logo {
+            display: flex;
+            align-items: center;
+            padding: 2px 0;
+        }
+
+        /* Create a placeholder for missing logos */
+        .team-logo-placeholder {
+            display: inline-flex;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            margin-right: 8px;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        /* Improve mobile styling for logos */
+        @media (max-width: 768px) {
+            .team-logo {
+                height: 20px;
+                width: 20px;
+                margin-right: 5px;
+            }
+            
+            .team-logo-placeholder {
+                width: 20px;
+                height: 20px;
+                font-size: 9px;
+                margin-right: 5px;
+            }
+            
+            .team-name-with-logo span {
+                font-size: 11px;
+            }
+        }
+
+        /* Add a hover effect to team names */
+        .team-name-with-logo:hover {
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        /* Custom styling for the score bar */
+        .score-bar-container {
+            width: 100%;
+            height: 14px;
+            background-color: var(--row-even);
+            border-radius: 7px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .score-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+            border-radius: 7px;
+        }
+
+        .score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--text-primary);
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Enhanced team highlighting */
+        .team-highlight .team-name-with-logo {
+            position: relative;
+        }
+
+        .team-highlight .team-name-with-logo::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -5px;
+            right: -5px;
+            bottom: -2px;
+            border-radius: 4px;
+            border: 2px solid rgba(255, 215, 0, 0.8);
+            pointer-events: none;
+        }
+
+        /* Enhanced standings table styling */
+        #standings-table {
+            font-size: 13px;
+        }
+
+        #standings-table th {
+            text-align: center;
+            padding: 10px 8px;
+            white-space: nowrap;
+        }
+
+        #standings-table th:nth-child(1),
+        #standings-table td:nth-child(1) {
+            width: 80px;
+            text-align: center;
+        }
+
+        #standings-table th:nth-child(2),
+        #standings-table td:nth-child(2) {
+            width: 200px;
+            text-align: left;
+        }
+
+        #standings-table td {
+            text-align: center;
+            padding: 4px;
+        }
+
+        /* Mini bar charts for percentages */
+        .mini-bar-container {
+            width: 100%;
+            height: 16px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mini-bar {
+            height: 100%;
+            border-radius: 8px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .mini-bar-text {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .top3-bar {
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.7) 0%, rgba(59, 130, 246, 0.7) 100%);
+        }
+
+        .relegation-bar {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.7) 0%, rgba(245, 158, 11, 0.7) 100%);
+        }
+
+        /* Highlight cells for highest and lowest ranks */
+        .best-rank {
+            color: #10B981;
+            font-weight: bold;
+        }
+
+        .worst-rank {
+            color: #EF4444;
+            font-weight: bold;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #standings-table th:nth-child(4),
+            #standings-table th:nth-child(5),
+            #standings-table td:nth-child(4),
+            #standings-table td:nth-child(5) {
+                display: none;
+            }
+            
+            .mini-bar-container {
+                height: 14px;
+            }
+            
+            .mini-bar-text {
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -649,7 +850,7 @@
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Playoff Candidate</div>
-                    <div class="fun-stat-value">Värnamo</div>
+                    <div class="fun-stat-value">Halmstad</div>
                     <div class="fun-stat-description">Most frequently predicted for relegation playoff (14th place) with 2 votes</div>
                 </div>
     
@@ -667,7 +868,7 @@
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">The Optimist</div>
-                    <div class="fun-stat-value">Valentino</div>
+                    <div class="fun-stat-value">Daniel</div>
                     <div class="fun-stat-description">Ranks top teams higher than others</div>
                 </div>
     
@@ -692,109 +893,449 @@
             </div>
         </section>
 
-        <!-- Average Standings Section -->
-        <section class="section">
-            <h2 class="section-title"><span class="icon">📊</span> Average Standings</h2>
-            <p class="section-description">Calculated based on everyone's predictions. Lower score indicates higher collective ranking.</p>
-            
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color legend-europaleague"></div>
-                    <span>Europa League (1st Place)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color legend-conference"></div>
-                    <span>Conference League (2nd-3rd Place)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color legend-direct"></div>
-                    <span>Direct Relegation (Bottom 2)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color legend-playoff"></div>
-                    <span>Relegation Playoff (14th Place)</span>
-                </div>
-            </div>
-            
-            <div class="table-wrapper">
-                <table id="standings-table">
-                    <thead>
-                        <tr>
-                            <th>Position</th>
-                            <th>Team</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-
-                        <tr class="europaleague">
-                            <td>1</td>
-                            <td>Hammarby</td>
-                        </tr>
-                        <tr class="conference-league">
-                            <td>2</td>
-                            <td>AIK</td>
-                        </tr>
-                        <tr class="conference-league">
-                            <td>3</td>
-                            <td>Malmö</td>
-                        </tr>
-                        <tr class="">
-                            <td>4</td>
-                            <td>Elfsborg</td>
-                        </tr>
-                        <tr class="">
-                            <td>5</td>
-                            <td>Djurgården</td>
-                        </tr>
-                        <tr class="">
-                            <td>6</td>
-                            <td>Mjällby</td>
-                        </tr>
-                        <tr class="">
-                            <td>7</td>
-                            <td>Häcken</td>
-                        </tr>
-                        <tr class="">
-                            <td>8</td>
-                            <td>GAIS</td>
-                        </tr>
-                        <tr class="">
-                            <td>9</td>
-                            <td>Norrköping</td>
-                        </tr>
-                        <tr class="">
-                            <td>10</td>
-                            <td>Sirius</td>
-                        </tr>
-                        <tr class="">
-                            <td>11</td>
-                            <td>Göteborg</td>
-                        </tr>
-                        <tr class="">
-                            <td>12</td>
-                            <td>Brommapojkarna</td>
-                        </tr>
-                        <tr class="">
-                            <td>13</td>
-                            <td>Degerfor</td>
-                        </tr>
-                        <tr class="relegation-playoff">
-                            <td>14</td>
-                            <td>Halmstad</td>
-                        </tr>
-                        <tr class="relegation-direct">
-                            <td>15</td>
-                            <td>Östers</td>
-                        </tr>
-                        <tr class="relegation-direct">
-                            <td>16</td>
-                            <td>Värnamo</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
+    <section class="section">
+        <h2 class="section-title"><span class="icon">📊</span> Consensus Rankings & Team Statistics</h2>
+        <p class="section-description">Comprehensive analysis of each team's predictions across all participants.</p>
         
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color legend-europaleague"></div>
+                <span>Europa League (1st Place)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-conference"></div>
+                <span>Conference League (2nd-3rd Place)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-direct"></div>
+                <span>Direct Relegation (Bottom 2)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-playoff"></div>
+                <span>Relegation Playoff (14th Place)</span>
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table id="standings-table">
+                <thead>
+                    <tr>
+                        <th>Consensus Rank</th>
+                        <th>Team</th>
+                        <th>Avg. Position</th>
+                        <th>Highest Rank</th>
+                        <th>Lowest Rank</th>
+                        <th>Top 3 %</th>
+                        <th>Relegation %</th>
+                    </tr>
+                </thead>
+                <tbody>
+    
+            <tr class="europaleague">
+                <td>1</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FHAM%2Flopo2qqr-hammarby-2.png" alt="Hammarby logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Hammarby</span>
+                    </div>
+                </td>
+                <td>2.2</td>
+                <td>1</td>
+                <td>5</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 88.88888888888889%"></div>
+                <span class="mini-bar-text">89%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="conference-league">
+                <td>2</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FAIK%2Flo739j5e-aik.png" alt="AIK logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>AIK</span>
+                    </div>
+                </td>
+                <td>2.6</td>
+                <td>1</td>
+                <td>5</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 77.77777777777779%"></div>
+                <span class="mini-bar-text">78%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="conference-league">
+                <td>3</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FMFF%2Flo70qypl-mff.png" alt="Malmö logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Malmö</span>
+                    </div>
+                </td>
+                <td>3.0</td>
+                <td>1</td>
+                <td>5</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 66.66666666666666%"></div>
+                <span class="mini-bar-text">67%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="">
+                <td>4</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FIFE%2Flo70p360-ife.png" alt="Elfsborg logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Elfsborg</span>
+                    </div>
+                </td>
+                <td>3.8</td>
+                <td>1</td>
+                <td>6</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 22.22222222222222%"></div>
+                <span class="mini-bar-text">22%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="">
+                <td>5</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FDIF%2Flo8dlmz8-Djurgrden.png" alt="Djurgården logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Djurgården</span>
+                    </div>
+                </td>
+                <td>4.8</td>
+                <td>2</td>
+                <td>7</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 33.33333333333333%"></div>
+                <span class="mini-bar-text">33%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="">
+                <td>6</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FMAIF%2Flfsbc2d2-Mjallby.png" alt="Mjällby logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Mjällby</span>
+                    </div>
+                </td>
+                <td>7.0</td>
+                <td>3</td>
+                <td>12</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 11.11111111111111%"></div>
+                <span class="mini-bar-text">11%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="">
+                <td>7</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FBKH%2Flo70ljkw-bkh.png" alt="Häcken logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Häcken</span>
+                    </div>
+                </td>
+                <td>8.0</td>
+                <td>4</td>
+                <td>12</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="">
+                <td>8</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FGAIS%2Flo72z1bx-gais.png" alt="GAIS logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>GAIS</span>
+                    </div>
+                </td>
+                <td>9.1</td>
+                <td>5</td>
+                <td>12</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="">
+                <td>9</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FNOR%2Flo70rrkn-nor.png" alt="Norrköping logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Norrköping</span>
+                    </div>
+                </td>
+                <td>9.2</td>
+                <td>7</td>
+                <td>13</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="">
+                <td>10</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FIKS%2Flo70q4e1-iks.png" alt="Sirius logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Sirius</span>
+                    </div>
+                </td>
+                <td>9.7</td>
+                <td>8</td>
+                <td>13</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="">
+                <td>11</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FGBG%2Flo8dlo50-ifkgoteborgfotboll.png" alt="Göteborg logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Göteborg</span>
+                    </div>
+                </td>
+                <td>10.3</td>
+                <td>6</td>
+                <td>15</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 11.11111111111111%"></div>
+                <span class="mini-bar-text">11%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="">
+                <td>12</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FIFBP%2Fle8buz9z-BPlogoguldtransparent.png" alt="Brommapojkarna logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Brommapojkarna</span>
+                    </div>
+                </td>
+                <td>10.6</td>
+                <td>6</td>
+                <td>14</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 22.22222222222222%"></div>
+                <span class="mini-bar-text">22%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="">
+                <td>13</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FDEIF%2Flo70mdul-deif.png" alt="Degerfor logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Degerfor</span>
+                    </div>
+                </td>
+                <td>12.1</td>
+                <td>10</td>
+                <td>16</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 22.22222222222222%"></div>
+                <span class="mini-bar-text">22%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="relegation-playoff">
+                <td>14</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FHBK%2Flo70nff2-hbk.png" alt="Halmstad logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Halmstad</span>
+                    </div>
+                </td>
+                <td>14.1</td>
+                <td>11</td>
+                <td>16</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 77.77777777777779%"></div>
+                <span class="mini-bar-text">78%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="relegation-direct">
+                <td>15</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FOIF%2Flo734oh6-oster.png" alt="Östers logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Östers</span>
+                    </div>
+                </td>
+                <td>14.4</td>
+                <td>12</td>
+                <td>16</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 77.77777777777779%"></div>
+                <span class="mini-bar-text">78%</span>
+            </div>
+        </td>
+            </tr>
+        
+            <tr class="relegation-direct">
+                <td>16</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        <img src="https://storage.googleapis.com/connectedleaguedata.appspot.com/teamImages%2FVARN%2Flo72dctd-varn.png" alt="Värnamo logo" class="team-logo" onerror="this.style.display='none'">
+                        <span>Värnamo</span>
+                    </div>
+                </td>
+                <td>15.1</td>
+                <td>13</td>
+                <td>16</td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: 0.0%"></div>
+                <span class="mini-bar-text">0%</span>
+            </div>
+        </td>
+                <td>
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: 88.88888888888889%"></div>
+                <span class="mini-bar-text">89%</span>
+            </div>
+        </td>
+            </tr>
+        
+                </tbody>
+            </table>
+        </div>
+    </section>
+    
         <!-- Individual Predictions Section -->
         <section class="section">
             <h2 class="section-title"><span class="icon">🔮</span> Individual Predictions</h2>
@@ -1016,7 +1557,7 @@
     </div>
     
     <footer>
-        <div>Updated on March 08, 2025 at 13:22</div>
+        <div>Updated on March 08, 2025 at 14:01</div>
         <div>Allsvenskan 2025 Prediction League</div>
     </footer>
 
@@ -1033,9 +1574,6 @@
             
             // Get all cells in the predictions table (excluding header and position column)
             const predictionCells = predictionsTable.querySelectorAll('tbody td:not(:first-child)');
-            
-            // Get all team name cells in the standings tables (second column)
-            const standingTeamCells = standingsTable.querySelectorAll('tbody td:nth-child(2)');
             
             // Get all team cells from live standings - need to handle the new structure with logos
             const liveStandingTeamCells = liveStandingsTable ? 
@@ -1073,7 +1611,6 @@
                     removeAllHighlights();
                 });
             });
-            
             // Allow highlighting from live standings table to other tables
             if (liveStandingTeamCells.length > 0) {
                 liveStandingTeamCells.forEach(cell => {
@@ -1171,8 +1708,47 @@
             });
         }
 
+        // Function to handle team logo failures and create placeholders
+        function handleTeamLogos() {
+            // Get all team logo images
+            const teamLogos = document.querySelectorAll('.team-logo');
+            
+            // For each logo, add an error handler
+            teamLogos.forEach(img => {
+                img.onerror = function() {
+                    // Get the team name from the alt attribute
+                    const teamName = img.alt.replace(' logo', '');
+                    
+                    // Create initials from the team name
+                    let initials = '';
+                    if (teamName) {
+                        const words = teamName.split(' ');
+                        initials = words.map(word => word.charAt(0)).join('');
+                        
+                        // Limit to 2 characters
+                        if (initials.length > 2) {
+                            initials = initials.substring(0, 2);
+                        }
+                    }
+                    
+                    // Create a placeholder element
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'team-logo-placeholder';
+                    placeholder.textContent = initials;
+                    
+                    // Replace the image with the placeholder
+                    if (img.parentNode) {
+                        img.parentNode.replaceChild(placeholder, img);
+                    }
+                };
+            });
+        }
+
         // Call the function when the document is fully loaded
-        document.addEventListener('DOMContentLoaded', setupTeamHighlighting);
+        document.addEventListener('DOMContentLoaded', function() {
+            handleTeamLogos();
+            setupTeamHighlighting(); // Your existing function
+        });
     </script>
 
 </body>

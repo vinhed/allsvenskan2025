@@ -4,6 +4,9 @@ import html
 from collections import Counter
 import random
 import sys
+import json
+from modules.allsvenskan_scraper import get_allsvenskan_standings, generate_live_standings_html, get_full_data
+from html import escape
 
 # Main script starts here
 allsvenskan_tip_2025 = {}
@@ -88,6 +91,486 @@ readme.write(tabulate(predictions_table, headers=headers, tablefmt="github") + "
 
 if len(predictions_table) != 16:
     print(f"!!! Warning: Too many teams ({len(predictions_table)}) in table, someone spelled it wrong!!!")
+
+def create_manual_team_mapping():
+    """Create a manual mapping for teams that might be difficult to match automatically"""
+    mapping = {
+        # Your prediction team name: API team name
+        "Malmö": "Malmö FF",
+        "Malmö FF": "Malmö FF",
+        "MFF": "Malmö FF",
+        "AIK": "AIK",
+        "Djurgården": "Djurgården",
+        "DIF": "Djurgården",
+        "Hammarby": "Hammarby",
+        "Bajen": "Hammarby",
+        "IFK Göteborg": "IFK Göteborg",
+        "Göteborg": "IFK Göteborg",
+        "Blåvitt": "IFK Göteborg",
+        "Häcken": "BK Häcken",
+        "BK Häcken": "BK Häcken",
+        "Elfsborg": "IF Elfsborg",
+        "IF Elfsborg": "IF Elfsborg",
+        "IFK Norrköping": "IFK Norrköping",
+        "Peking": "IFK Norrköping",
+        "Värnamo": "IFK Värnamo",
+        "IFK Värnamo": "IFK Värnamo",
+        "Sirius": "IK Sirius",
+        "IK Sirius": "IK Sirius",
+        "Mjällby": "Mjällby AIF",
+        "Mjällby AIF": "Mjällby AIF",
+        "MAIF": "Mjällby AIF",
+        "BP": "BP",
+        "Brommapojkarna": "BP",
+        "Degerfors": "Degerfors IF",
+        "Degerfors IF": "Degerfors IF",
+        "Halmstad": "Halmstads BK",
+        "Halmstads BK": "Halmstads BK",
+        "HBK": "Halmstads BK",
+        "GAIS": "GAIS",
+        "Gais": "GAIS",
+        "Öster": "Östers IF",
+        "Östers IF": "Östers IF",
+        "Östers": "Östers IF"
+    }
+    return mapping
+
+def enhanced_get_team_logos(api_data, prediction_teams):
+    """
+    Get team logos using both automatic matching and manual mapping
+    
+    Args:
+        api_data: The API data containing team information
+        prediction_teams: List of team names from predictions
+        
+    Returns:
+        Dictionary mapping prediction team names to logo URLs
+    """
+    team_logos = {}
+    api_teams = []
+    
+    try:
+        # First collect all teams from API
+        for key, team_info in api_data.items():
+            # Skip non-team entries
+            if key == 'undefined' or not key.isdigit():
+                continue
+                
+            team_name = team_info.get('displayName', '')
+            logo_url = team_info.get('logoImageUrl', '')
+            
+            if team_name and logo_url:
+                api_teams.append({
+                    'name': team_name,
+                    'abbreviation': team_info.get('abbrv', ''),
+                    'full_name': team_info.get('name', ''),
+                    'logo_url': logo_url
+                })
+        
+        # Create manual mapping
+        manual_mapping = create_manual_team_mapping()
+        
+        # Go through API data and build a mapping from API team names to logo URLs
+        api_name_to_logo = {}
+        for api_team in api_teams:
+            api_name_to_logo[api_team['name']] = api_team['logo_url']
+        
+        # For each team in predictions, try to match with API teams
+        for team in prediction_teams:
+            matched = False
+            team_lower = team.lower().strip()
+            
+            # 1. Try direct match with manual mapping
+            if team in manual_mapping:
+                api_name = manual_mapping[team]
+                for api_team in api_teams:
+                    if api_name.lower() == api_team['name'].lower():
+                        team_logos[team] = api_team['logo_url']
+                        matched = True
+                        print(f"✓ Manually matched '{team}' to '{api_team['name']}'")
+                        break
+            
+            # 2. Try exact match (case insensitive)
+            if not matched:
+                for api_team in api_teams:
+                    if team_lower == api_team['name'].lower().strip():
+                        team_logos[team] = api_team['logo_url']
+                        matched = True
+                        print(f"✓ Exact match: '{team}' to '{api_team['name']}'")
+                        break
+            
+            # 3. Try substring match
+            if not matched:
+                for api_team in api_teams:
+                    # Our team name is in API team name
+                    if team_lower in api_team['name'].lower() or team_lower in api_team['full_name'].lower():
+                        team_logos[team] = api_team['logo_url']
+                        matched = True
+                        print(f"✓ Substring match: '{team}' in '{api_team['name']}'")
+                        break
+                    # API team name is in our team name
+                    elif api_team['name'].lower() in team_lower or api_team['abbreviation'].lower() == team_lower:
+                        team_logos[team] = api_team['logo_url']
+                        matched = True
+                        print(f"✓ Abbreviation match: '{team}' contains '{api_team['name']}'")
+                        break
+            
+            if not matched:
+                print(f"! Could not find logo for team '{team}'")
+        
+        return team_logos
+    except Exception as e:
+        print(f"Error extracting team logos: {e}")
+        return {}
+
+def debug_api_teams(api_data):
+    """
+    Display all teams available in the API data for debugging
+    """
+    print("\nDEBUG: All teams available in API data:")
+    print("="*50)
+    
+    teams = []
+    
+    for key, team_info in api_data.items():
+        if key == 'undefined' or not key.isdigit():
+            continue
+            
+        display_name = team_info.get('displayName', 'N/A')
+        abbrv = team_info.get('abbrv', 'N/A')
+        full_name = team_info.get('name', 'N/A')
+        logo_url = team_info.get('logoImageUrl', 'N/A')
+        
+        teams.append({
+            'display_name': display_name,
+            'abbrv': abbrv,
+            'full_name': full_name,
+            'has_logo': bool(logo_url)
+        })
+    
+    # Sort teams by display name
+    teams.sort(key=lambda x: x['display_name'])
+    
+    # Print formatted team info
+    print(f"{'Display Name':<20} {'Abbrev.':<10} {'Full Name':<30} {'Has Logo'}")
+    print("-"*70)
+    
+    for team in teams:
+        print(f"{team['display_name']:<20} {team['abbrv']:<10} {team['full_name']:<30} {'✓' if team['has_logo'] else '✗'}")
+    
+    print("="*50)
+
+def generate_enhanced_standings_table(sorted_allsvenskan_tip_2025, bets, team_logos):
+    """
+    Generate HTML for an enhanced consensus standings table with additional statistics
+    """
+    # Calculate additional statistics for each team
+    team_stats = {}
+    
+    for team in sorted_allsvenskan_tip_2025.keys():
+        positions = []
+        
+        # Collect all positions where this team was placed
+        for user, predictions in bets.items():
+            if team in predictions:
+                pos = predictions.index(team) + 1  # Convert to 1-based position
+                positions.append(pos)
+        
+        # Calculate statistics if we have positions
+        if positions:
+            avg_pos = sum(positions) / len(positions)
+            highest_pos = min(positions)  # Lowest number = highest position
+            lowest_pos = max(positions)   # Highest number = lowest position
+            median_pos = sorted(positions)[len(positions) // 2] if len(positions) % 2 != 0 else (
+                sorted(positions)[len(positions) // 2 - 1] + sorted(positions)[len(positions) // 2]
+            ) / 2
+            
+            # Calculate how many users predicted this team for each position group
+            top3 = sum(1 for p in positions if p <= 3)
+            top3_pct = (top3 / len(positions)) * 100
+            
+            europa = sum(1 for p in positions if p == 1)
+            europa_pct = (europa / len(positions)) * 100
+            
+            conference = sum(1 for p in positions if p in [2, 3])
+            conference_pct = (conference / len(positions)) * 100
+            
+            relegation = sum(1 for p in positions if p >= len(sorted_allsvenskan_tip_2025) - 2)
+            relegation_pct = (relegation / len(positions)) * 100
+            
+            team_stats[team] = {
+                'consensus_pos': list(sorted_allsvenskan_tip_2025.keys()).index(team) + 1,
+                'avg_pos': avg_pos,
+                'highest_pos': highest_pos,
+                'lowest_pos': lowest_pos,
+                'median_pos': median_pos,
+                'top3_pct': top3_pct,
+                'europa_pct': europa_pct,
+                'conference_pct': conference_pct,
+                'relegation_pct': relegation_pct,
+                'predictions_count': len(positions),
+                'value': sorted_allsvenskan_tip_2025[team]
+            }
+    
+    # Start generating the HTML
+    html = '''
+    <section class="section">
+        <h2 class="section-title"><span class="icon">📊</span> Consensus Rankings & Team Statistics</h2>
+        <p class="section-description">Comprehensive analysis of each team's predictions across all participants.</p>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color legend-europaleague"></div>
+                <span>Europa League (1st Place)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-conference"></div>
+                <span>Conference League (2nd-3rd Place)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-direct"></div>
+                <span>Direct Relegation (Bottom 2)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-playoff"></div>
+                <span>Relegation Playoff (14th Place)</span>
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table id="standings-table">
+                <thead>
+                    <tr>
+                        <th>Consensus Rank</th>
+                        <th>Team</th>
+                        <th>Avg. Position</th>
+                        <th>Highest Rank</th>
+                        <th>Lowest Rank</th>
+                        <th>Top 3</th>
+                        <th>Relegation</th>
+                    </tr>
+                </thead>
+                <tbody>
+    '''
+    
+    team_count = len(sorted_allsvenskan_tip_2025)
+    
+    for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items()):
+        if team not in team_stats:
+            continue
+            
+        stats = team_stats[team]
+        row_class = ""
+        
+        # Add classes for relegation and European qualification
+        if pos == 0:
+            row_class = "europaleague"
+        elif pos == 1 or pos == 2:
+            row_class = "conference-league"
+        elif pos >= team_count - 2:
+            row_class = "relegation-direct"
+        elif pos == team_count - 3:
+            row_class = "relegation-playoff"
+        
+        # Get team logo if available
+        logo_url = team_logos.get(team, '')
+        logo_html = f'<img src="{logo_url}" alt="{team} logo" class="team-logo" onerror="this.style.display=\'none\'">' if logo_url else ''
+        
+        # Format the stats
+        avg_pos = f"{stats['avg_pos']:.1f}"
+        top3_pct = f"{stats['top3_pct']:.0f}%"
+        relegation_pct = f"{stats['relegation_pct']:.0f}%"
+        
+        # Generate a mini bar chart for top3 percentage
+        top3_bar = f'''
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: {stats['top3_pct']}%"></div>
+                <span class="mini-bar-text">{top3_pct}</span>
+            </div>
+        '''
+        
+        # Generate a mini bar chart for relegation percentage
+        relegation_bar = f'''
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: {stats['relegation_pct']}%"></div>
+                <span class="mini-bar-text">{relegation_pct}</span>
+            </div>
+        '''
+        
+        html += f'''
+            <tr class="{row_class}">
+                <td>{pos+1}</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        {logo_html}
+                        <span>{escape(team)}</span>
+                    </div>
+                </td>
+                <td>{avg_pos}</td>
+                <td>{stats['highest_pos']}</td>
+                <td>{stats['lowest_pos']}</td>
+                <td>{top3_bar}</td>
+                <td>{relegation_bar}</td>
+            </tr>
+        '''
+    
+    html += '''
+                </tbody>
+            </table>
+        </div>
+    </section>
+    '''
+    
+    return html
+
+def get_api_data():
+    """
+    Try to get the API data from various sources
+    """
+    try:
+        try:
+            return get_full_data()
+        except Exception as e:
+            print(f"Note: Could not get data from scraper: {e}")
+        
+        return {}
+    except Exception as e:
+        print(f"Error getting API data: {e}")
+        return {}
+
+# This code should be inserted after you set up the current_standings variable
+# And right before you generate the HTML
+
+# Get API data and extract team logos
+print("Getting team logos from API data...")
+api_data = get_api_data()
+team_logos = enhanced_get_team_logos(api_data, sorted_allsvenskan_tip_2025.keys())
+
+if team_logos:
+    print(f"✓ Successfully extracted logos for {len(team_logos)} teams")
+else:
+    print("! Could not extract team logos")
+
+# Then, when you're generating the standings table in your HTML generation code,
+# replace the existing standings table with this:
+
+# Inside your html_content generation, replace the standings table section with:
+standings_table_html = '''
+            <div class="table-wrapper">
+                <table id="standings-table">
+                    <thead>
+                        <tr>
+                            <th>Position</th>
+                            <th>Team</th>
+                            <th>Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+'''
+
+# Add standings table rows with logos, relegation highlighting and European qualification
+team_count = len(sorted_allsvenskan_tip_2025)
+for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items()):
+    position_display = f"{pos+1}"
+    row_class = ""
+    
+    # Add medals to top 3
+    if pos == 0:
+        row_class = "europaleague"  # 1st place - Europa League
+    elif pos == 1 or pos == 2:
+        row_class = "conference-league"  # 2nd and 3rd place - Conference League
+    # Add relegation classes
+    elif pos >= team_count - 2:  # Bottom 2 teams (direct relegation)
+        row_class = "relegation-direct"
+    elif pos == team_count - 3:  # 3rd from bottom (playoff)
+        row_class = "relegation-playoff"
+    
+    # Get logo if available
+    logo_url = '' #team_logos.get(team, '')
+    logo_html = f'<img src="{logo_url}" alt="{team} logo" class="team-logo" onerror="this.style.display=\'none\'">' if logo_url else ''
+    
+    # Calculate normalized score (inverted from the value)
+    normalized_score = (16 * len(bets)) - value
+    
+    standings_table_html += f'''
+                        <tr class="{row_class}">
+                            <td>{position_display}</td>
+                            <td>
+                                <div class="team-name-with-logo">
+                                    {logo_html}
+                                    <span>{escape(team)}</span>
+                                </div>
+                            </td>
+                            <td>{normalized_score}</td>
+                        </tr>'''
+
+standings_table_html += '''
+                    </tbody>
+                </table>
+            </div>
+'''
+
+# Then replace your existing predictions table with this:
+predictions_table_html = '''
+            <div class="table-wrapper">
+                <table id="predictions-table">
+                    <thead>
+                        <tr>
+                            <th>Pos</th>
+'''
+
+# Add user headers
+for user in bets.keys():
+    predictions_table_html += f'                            <th>{escape(user)}</th>\n'
+
+predictions_table_html += '''                        </tr>
+                    </thead>
+                    <tbody>
+'''
+
+# Add prediction rows with logos, relegation highlighting and European qualification
+for i in range(max_bets):
+    row_class = ""
+    
+    # Highlight European qualification and relegation positions in the position column
+    if i == 0:  # Top position (Europa League)
+        row_class = "europaleague"
+    elif i == 1 or i == 2:  # 2nd and 3rd position (Conference League)
+        row_class = "conference-league"
+    elif i >= max_bets - 2:  # Bottom 2 positions (direct relegation)
+        row_class = "relegation-direct"
+    elif i == max_bets - 3:  # 3rd from bottom position (playoff)
+        row_class = "relegation-playoff"
+    
+    predictions_table_html += f'                        <tr class="{row_class}">\n'
+    predictions_table_html += f'                            <td>{i+1}</td>\n'
+    
+    for user in bets.keys():
+        bet = bets[user][i] if i < len(bets[user]) else ""
+        
+        # Get logo if available and bet is not empty
+        cell_content = ""
+        if bet:
+            logo_html = ""
+            if bet in team_logos:
+                logo_url = team_logos[bet]
+                logo_html = f'<img src="{logo_url}" alt="{bet} logo" class="team-logo" onerror="this.style.display=\'none\'">'
+            
+            cell_content = f'''
+                <div class="team-name-with-logo">
+                    {logo_html}
+                    <span>{escape(bet)}</span>
+                </div>
+            '''
+        
+        predictions_table_html += f'                            <td>{cell_content}</td>\n'
+    
+    predictions_table_html += f'                        </tr>\n'
+
+predictions_table_html += '''                    </tbody>
+                </table>
+            </div>
+'''
 
 # Helper function to format teams list
 def format_team_list(teams_list):
@@ -327,17 +810,179 @@ def calculate_fun_stats(bets, sorted_standings):
     
     return stats
 
+def generate_enhanced_standings_table(sorted_allsvenskan_tip_2025, bets, team_logos):
+    """
+    Generate HTML for an enhanced consensus standings table with additional statistics
+    """
+    # Calculate additional statistics for each team
+    team_stats = {}
+    
+    for team in sorted_allsvenskan_tip_2025.keys():
+        positions = []
+        
+        # Collect all positions where this team was placed
+        for user, predictions in bets.items():
+            if team in predictions:
+                pos = predictions.index(team) + 1  # Convert to 1-based position
+                positions.append(pos)
+        
+        # Calculate statistics if we have positions
+        if positions:
+            avg_pos = sum(positions) / len(positions)
+            highest_pos = min(positions)  # Lowest number = highest position
+            lowest_pos = max(positions)   # Highest number = lowest position
+            median_pos = sorted(positions)[len(positions) // 2] if len(positions) % 2 != 0 else (
+                sorted(positions)[len(positions) // 2 - 1] + sorted(positions)[len(positions) // 2]
+            ) / 2
+            
+            # Calculate how many users predicted this team for each position group
+            top3 = sum(1 for p in positions if p <= 3)
+            top3_pct = (top3 / len(positions)) * 100
+            
+            europa = sum(1 for p in positions if p == 1)
+            europa_pct = (europa / len(positions)) * 100
+            
+            conference = sum(1 for p in positions if p in [2, 3])
+            conference_pct = (conference / len(positions)) * 100
+            
+            relegation = sum(1 for p in positions if p >= len(sorted_allsvenskan_tip_2025) - 2)
+            relegation_pct = (relegation / len(positions)) * 100
+            
+            team_stats[team] = {
+                'consensus_pos': list(sorted_allsvenskan_tip_2025.keys()).index(team) + 1,
+                'avg_pos': avg_pos,
+                'highest_pos': highest_pos,
+                'lowest_pos': lowest_pos,
+                'median_pos': median_pos,
+                'top3_pct': top3_pct,
+                'europa_pct': europa_pct,
+                'conference_pct': conference_pct,
+                'relegation_pct': relegation_pct,
+                'predictions_count': len(positions),
+                'value': sorted_allsvenskan_tip_2025[team]
+            }
+    
+    # Start generating the HTML
+    html = '''
+    <section class="section">
+        <h2 class="section-title"><span class="icon">📊</span> Consensus Rankings & Team Statistics</h2>
+        <p class="section-description">Comprehensive analysis of each team's predictions across all participants.</p>
+        
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color legend-europaleague"></div>
+                <span>Europa League (1st Place)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-conference"></div>
+                <span>Conference League (2nd-3rd Place)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-direct"></div>
+                <span>Direct Relegation (Bottom 2)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color legend-playoff"></div>
+                <span>Relegation Playoff (14th Place)</span>
+            </div>
+        </div>
+        
+        <div class="table-wrapper">
+            <table id="standings-table">
+                <thead>
+                    <tr>
+                        <th>Consensus Rank</th>
+                        <th>Team</th>
+                        <th>Avg. Position</th>
+                        <th>Highest Rank</th>
+                        <th>Lowest Rank</th>
+                        <th>Top 3 %</th>
+                        <th>Relegation %</th>
+                    </tr>
+                </thead>
+                <tbody>
+    '''
+    
+    team_count = len(sorted_allsvenskan_tip_2025)
+    
+    for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items()):
+        if team not in team_stats:
+            continue
+            
+        stats = team_stats[team]
+        row_class = ""
+        
+        # Add classes for relegation and European qualification
+        if pos == 0:
+            row_class = "europaleague"
+        elif pos == 1 or pos == 2:
+            row_class = "conference-league"
+        elif pos >= team_count - 2:
+            row_class = "relegation-direct"
+        elif pos == team_count - 3:
+            row_class = "relegation-playoff"
+        
+        # Get team logo if available
+        logo_url = team_logos.get(team, '')
+        logo_html = f'<img src="{logo_url}" alt="{team} logo" class="team-logo" onerror="this.style.display=\'none\'">' if logo_url else ''
+        
+        # Format the stats
+        avg_pos = f"{stats['avg_pos']:.1f}"
+        top3_pct = f"{stats['top3_pct']:.0f}%"
+        relegation_pct = f"{stats['relegation_pct']:.0f}%"
+        
+        # Generate a mini bar chart for top3 percentage
+        top3_bar = f'''
+            <div class="mini-bar-container">
+                <div class="mini-bar top3-bar" style="width: {stats['top3_pct']}%"></div>
+                <span class="mini-bar-text">{top3_pct}</span>
+            </div>
+        '''
+        
+        # Generate a mini bar chart for relegation percentage
+        relegation_bar = f'''
+            <div class="mini-bar-container">
+                <div class="mini-bar relegation-bar" style="width: {stats['relegation_pct']}%"></div>
+                <span class="mini-bar-text">{relegation_pct}</span>
+            </div>
+        '''
+        
+        html += f'''
+            <tr class="{row_class}">
+                <td>{pos+1}</td>
+                <td>
+                    <div class="team-name-with-logo">
+                        {logo_html}
+                        <span>{escape(team)}</span>
+                    </div>
+                </td>
+                <td>{avg_pos}</td>
+                <td>{stats['highest_pos']}</td>
+                <td>{stats['lowest_pos']}</td>
+                <td>{top3_bar}</td>
+                <td>{relegation_bar}</td>
+            </tr>
+        '''
+    
+    html += '''
+                </tbody>
+            </table>
+        </div>
+    </section>
+    '''
+    
+    return html
+
 # Calculate fun stats
 print("Calculating fun statistics...")
 fun_stats = calculate_fun_stats(bets, sorted_allsvenskan_tip_2025)
 
+print("Generating enhanced standings table...")
+enhanced_standings_html = generate_enhanced_standings_table(sorted_allsvenskan_tip_2025, bets, team_logos)
+
 # Try to fetch current standings
 print("Fetching current Allsvenskan standings...")
 try:
-    # Import the scraper module
-    sys.path.append('modules')
-    from modules.allsvenskan_scraper import get_allsvenskan_standings, generate_live_standings_html
-    
     # Fetch current standings
     current_standings = get_allsvenskan_standings()
     
@@ -965,6 +1610,207 @@ html_content = '''<!DOCTYPE html>
                 grid-template-columns: 1fr;
             }
         }
+
+        /* Enhanced team logo styling */
+        .team-logo {
+            height: 24px;
+            width: 24px;
+            object-fit: contain;
+            margin-right: 8px;
+            vertical-align: middle;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2px;
+        }
+
+        .team-name-with-logo {
+            display: flex;
+            align-items: center;
+            padding: 2px 0;
+        }
+
+        /* Create a placeholder for missing logos */
+        .team-logo-placeholder {
+            display: inline-flex;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--accent);
+            margin-right: 8px;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+        }
+
+        /* Improve mobile styling for logos */
+        @media (max-width: 768px) {
+            .team-logo {
+                height: 20px;
+                width: 20px;
+                margin-right: 5px;
+            }
+            
+            .team-logo-placeholder {
+                width: 20px;
+                height: 20px;
+                font-size: 9px;
+                margin-right: 5px;
+            }
+            
+            .team-name-with-logo span {
+                font-size: 11px;
+            }
+        }
+
+        /* Add a hover effect to team names */
+        .team-name-with-logo:hover {
+            opacity: 0.8;
+            cursor: pointer;
+        }
+
+        /* Custom styling for the score bar */
+        .score-bar-container {
+            width: 100%;
+            height: 14px;
+            background-color: var(--row-even);
+            border-radius: 7px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .score-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent) 0%, var(--accent2) 100%);
+            border-radius: 7px;
+        }
+
+        .score-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10px;
+            font-weight: bold;
+            color: var(--text-primary);
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Enhanced team highlighting */
+        .team-highlight .team-name-with-logo {
+            position: relative;
+        }
+
+        .team-highlight .team-name-with-logo::after {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -5px;
+            right: -5px;
+            bottom: -2px;
+            border-radius: 4px;
+            border: 2px solid rgba(255, 215, 0, 0.8);
+            pointer-events: none;
+        }
+
+        /* Enhanced standings table styling */
+        #standings-table {
+            font-size: 13px;
+        }
+
+        #standings-table th {
+            text-align: center;
+            padding: 10px 8px;
+            white-space: nowrap;
+        }
+
+        #standings-table th:nth-child(1),
+        #standings-table td:nth-child(1) {
+            width: 80px;
+            text-align: center;
+        }
+
+        #standings-table th:nth-child(2),
+        #standings-table td:nth-child(2) {
+            width: 200px;
+            text-align: left;
+        }
+
+        #standings-table td {
+            text-align: center;
+            padding: 4px;
+        }
+
+        /* Mini bar charts for percentages */
+        .mini-bar-container {
+            width: 100%;
+            height: 16px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mini-bar {
+            height: 100%;
+            border-radius: 8px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        .mini-bar-text {
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 11px;
+            font-weight: bold;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.7);
+        }
+
+        .top3-bar {
+            background: linear-gradient(90deg, rgba(16, 185, 129, 0.7) 0%, rgba(59, 130, 246, 0.7) 100%);
+        }
+
+        .relegation-bar {
+            background: linear-gradient(90deg, rgba(239, 68, 68, 0.7) 0%, rgba(245, 158, 11, 0.7) 100%);
+        }
+
+        /* Highlight cells for highest and lowest ranks */
+        .best-rank {
+            color: #10B981;
+            font-weight: bold;
+        }
+
+        .worst-rank {
+            color: #EF4444;
+            font-weight: bold;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            #standings-table th:nth-child(4),
+            #standings-table th:nth-child(5),
+            #standings-table td:nth-child(4),
+            #standings-table td:nth-child(5) {
+                display: none;
+            }
+            
+            .mini-bar-container {
+                height: 14px;
+            }
+            
+            .mini-bar-text {
+                font-size: 10px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -1005,7 +1851,7 @@ if 'most_predicted_champion' in fun_stats:
     html_content += f'''
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">People's Champion</div>
-                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_predicted_champion']))}</div>
+                    <div class="fun-stat-value">{escape(str(fun_stats['most_predicted_champion']))}</div>
                     <div class="fun-stat-description">Most frequently predicted to win with {fun_stats['champion_votes']} votes</div>
                 </div>
     '''
@@ -1014,7 +1860,7 @@ if 'most_predicted_relegation' in fun_stats:
     html_content += f'''
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Direct Relegation Favorite</div>
-                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_predicted_relegation']))}</div>
+                    <div class="fun-stat-value">{escape(str(fun_stats['most_predicted_relegation']))}</div>
                     <div class="fun-stat-description">Most frequently predicted for direct relegation (bottom 2) with {fun_stats['relegation_votes']} votes</div>
                 </div>
     '''
@@ -1023,7 +1869,7 @@ if 'most_predicted_playoff' in fun_stats:
     html_content += f'''
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Playoff Candidate</div>
-                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_predicted_playoff']))}</div>
+                    <div class="fun-stat-value">{escape(str(fun_stats['most_predicted_playoff']))}</div>
                     <div class="fun-stat-description">Most frequently predicted for relegation playoff (14th place) with {fun_stats['playoff_votes']} votes</div>
                 </div>
     '''
@@ -1032,7 +1878,7 @@ if 'most_divisive_team' in fun_stats:
     html_content += f'''
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Most Divisive Team</div>
-                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_divisive_team']))}</div>
+                    <div class="fun-stat-value">{escape(str(fun_stats['most_divisive_team']))}</div>
                     <div class="fun-stat-description">Highest variance in predicted positions (variance: {fun_stats['divisive_variance']})</div>
                 </div>
     '''
@@ -1041,7 +1887,7 @@ if 'most_agreed_team' in fun_stats:
     html_content += f'''
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Most Agreed Upon Team</div>
-                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_agreed_team']))}</div>
+                    <div class="fun-stat-value">{escape(str(fun_stats['most_agreed_team']))}</div>
                     <div class="fun-stat-description">Lowest variance in predicted positions (variance: {fun_stats['agreed_variance']})</div>
                 </div>
     '''
@@ -1050,7 +1896,7 @@ if 'most_optimistic' in fun_stats:
     html_content += f'''
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">The Optimist</div>
-                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_optimistic']))}</div>
+                    <div class="fun-stat-value">{escape(str(fun_stats['most_optimistic']))}</div>
                     <div class="fun-stat-description">Ranks top teams higher than others</div>
                 </div>
     '''
@@ -1059,7 +1905,7 @@ if 'most_pessimistic' in fun_stats:
     html_content += f'''
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">The Pessimist</div>
-                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_pessimistic']))}</div>
+                    <div class="fun-stat-value">{escape(str(fun_stats['most_pessimistic']))}</div>
                     <div class="fun-stat-description">Ranks top teams lower than others</div>
                 </div>
     '''
@@ -1068,7 +1914,7 @@ if 'most_unique' in fun_stats:
     html_content += f'''
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">The Maverick</div>
-                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_unique']))}</div>
+                    <div class="fun-stat-value">{escape(str(fun_stats['most_unique']))}</div>
                     <div class="fun-stat-description">Most predictions different from the consensus</div>
                 </div>
     '''
@@ -1077,7 +1923,7 @@ if 'prophet' in fun_stats:
     html_content += f'''
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">The Prophet</div>
-                    <div class="fun-stat-value">{html.escape(str(fun_stats['prophet']))}</div>
+                    <div class="fun-stat-value">{escape(str(fun_stats['prophet']))}</div>
                     <div class="fun-stat-description">Predictions most aligned with the group consensus</div>
                 </div>
     '''
@@ -1092,71 +1938,9 @@ if live_standings_html:
     html_content += live_standings_html
 
 # Continue with the average standings section        
-html_content += '''
-        <!-- Average Standings Section -->
-        <section class="section">
-            <h2 class="section-title"><span class="icon">📊</span> Average Standings</h2>
-            <p class="section-description">Calculated based on everyone's predictions. Lower score indicates higher collective ranking.</p>
-            
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-color legend-europaleague"></div>
-                    <span>Europa League (1st Place)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color legend-conference"></div>
-                    <span>Conference League (2nd-3rd Place)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color legend-direct"></div>
-                    <span>Direct Relegation (Bottom 2)</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color legend-playoff"></div>
-                    <span>Relegation Playoff (14th Place)</span>
-                </div>
-            </div>
-            
-            <div class="table-wrapper">
-                <table id="standings-table">
-                    <thead>
-                        <tr>
-                            <th>Position</th>
-                            <th>Team</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-'''
-
-# Add standings table rows with relegation highlighting and European qualification
-team_count = len(sorted_allsvenskan_tip_2025)
-for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items()):
-    position_display = f"{pos+1}"
-    row_class = ""
-    
-    # Add medals to top 3
-    if pos == 0:
-        row_class = "europaleague"  # 1st place - Europa League
-    elif pos == 1 or pos == 2:
-        row_class = "conference-league"  # 2nd and 3rd place - Conference League
-    # Add relegation classes
-    elif pos >= team_count - 2:  # Bottom 2 teams (direct relegation)
-        row_class = "relegation-direct"
-    elif pos == team_count - 3:  # 3rd from bottom (playoff)
-        row_class = "relegation-playoff"
-    
-    html_content += f'''
-                        <tr class="{row_class}">
-                            <td>{position_display}</td>
-                            <td>{html.escape(team)}</td>
-                        </tr>'''
+html_content += enhanced_standings_html
 
 html_content += '''
-                    </tbody>
-                </table>
-            </div>
-        </section>
-        
         <!-- Individual Predictions Section -->
         <section class="section">
             <h2 class="section-title"><span class="icon">🔮</span> Individual Predictions</h2>
@@ -1171,7 +1955,7 @@ html_content += '''
 
 # Add user headers
 for user in bets.keys():
-    html_content += f'                            <th>{html.escape(user)}</th>\n'
+    html_content += f'                            <th>{escape(user)}</th>\n'
 
 html_content += '''                        </tr>
                     </thead>
@@ -1197,7 +1981,7 @@ for i in range(max_bets):
     
     for user in bets.keys():
         bet = bets[user][i] if i < len(bets[user]) else ""
-        html_content += f'                            <td>{html.escape(bet)}</td>\n'
+        html_content += f'                            <td>{escape(bet)}</td>\n'
     
     html_content += f'                        </tr>\n'
 
@@ -1225,9 +2009,6 @@ html_content += '''                    </tbody>
             
             // Get all cells in the predictions table (excluding header and position column)
             const predictionCells = predictionsTable.querySelectorAll('tbody td:not(:first-child)');
-            
-            // Get all team name cells in the standings tables (second column)
-            const standingTeamCells = standingsTable.querySelectorAll('tbody td:nth-child(2)');
             
             // Get all team cells from live standings - need to handle the new structure with logos
             const liveStandingTeamCells = liveStandingsTable ? 
@@ -1265,7 +2046,6 @@ html_content += '''                    </tbody>
                     removeAllHighlights();
                 });
             });
-            
             // Allow highlighting from live standings table to other tables
             if (liveStandingTeamCells.length > 0) {
                 liveStandingTeamCells.forEach(cell => {
@@ -1363,8 +2143,47 @@ html_content += '''                    </tbody>
             });
         }
 
+        // Function to handle team logo failures and create placeholders
+        function handleTeamLogos() {
+            // Get all team logo images
+            const teamLogos = document.querySelectorAll('.team-logo');
+            
+            // For each logo, add an error handler
+            teamLogos.forEach(img => {
+                img.onerror = function() {
+                    // Get the team name from the alt attribute
+                    const teamName = img.alt.replace(' logo', '');
+                    
+                    // Create initials from the team name
+                    let initials = '';
+                    if (teamName) {
+                        const words = teamName.split(' ');
+                        initials = words.map(word => word.charAt(0)).join('');
+                        
+                        // Limit to 2 characters
+                        if (initials.length > 2) {
+                            initials = initials.substring(0, 2);
+                        }
+                    }
+                    
+                    // Create a placeholder element
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'team-logo-placeholder';
+                    placeholder.textContent = initials;
+                    
+                    // Replace the image with the placeholder
+                    if (img.parentNode) {
+                        img.parentNode.replaceChild(placeholder, img);
+                    }
+                };
+            });
+        }
+
         // Call the function when the document is fully loaded
-        document.addEventListener('DOMContentLoaded', setupTeamHighlighting);
+        document.addEventListener('DOMContentLoaded', function() {
+            handleTeamLogos();
+            setupTeamHighlighting(); // Your existing function
+        });
     </script>
 
 </body>

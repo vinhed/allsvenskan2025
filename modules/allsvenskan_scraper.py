@@ -2,6 +2,24 @@ import requests
 import json
 from datetime import datetime
 
+def get_full_data():
+    url = "https://allsvenskan.se/data-endpoint/statistics/standings/2025/total"
+    
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "Accept": "application/json",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Cache-Control": "no-cache"
+    }
+
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()  # Raise exception for bad status codes
+        return response.json()
+    except:
+        print(f"Error fetching Allsvenskan standings from API: {e}")
+    return []
+
 def get_allsvenskan_standings():
     """
     Fetch the current Allsvenskan standings from the official API
@@ -17,11 +35,7 @@ def get_allsvenskan_standings():
     }
     
     try:
-        response = requests.get(url, headers=headers)
-        response.raise_for_status()  # Raise exception for bad status codes
-        
-        # Parse JSON response
-        data = response.json()
+        data = get_full_data()
         
         # Create a list to store team information in order
         standings_data = []
@@ -228,6 +242,8 @@ def generate_live_standings_html(standings, bets):
     """
     
     return html
+
+
 
 # For testing
 if __name__ == '__main__':
