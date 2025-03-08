@@ -8,6 +8,38 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Style for highlighted team cells */
+        .team-highlight {
+            background-color: rgba(255, 215, 0, 0.3) !important; /* Golden highlight */
+            box-shadow: inset 0 0 0 2px rgba(255, 215, 0, 0.8) !important;
+            color: white !important;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* Ensure highlighted cells maintain their styling even in relegation/european rows */
+        tr.europaleague td.team-highlight,
+        tr.conference-league td.team-highlight,
+        tr.relegation-direct td.team-highlight,
+        tr.relegation-playoff td.team-highlight {
+            background-color: rgba(255, 215, 0, 0.4) !important;
+        }
+
+        /* Also highlight the same team in the standings table */
+        #standings-table td.team-highlight {
+            background-color: rgba(255, 215, 0, 0.3) !important;
+            box-shadow: inset 0 0 0 2px rgba(255, 215, 0, 0.8) !important;
+            color: white !important;
+        }
+
+        /* Add a subtle transition for smoother highlighting */
+        #predictions-table td,
+        #standings-table td {
+            transition: background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+        }
+
+
+
         /* Dark mode color scheme */
         :root {
             --bg-primary: #121212;
@@ -333,37 +365,57 @@
             color: var(--text-secondary);
         }
         
-        /* Color variations for fun stats */
         .fun-stat-card:nth-child(1) .fun-stat-value {
             color: var(--accent);
         }
-        
+
         .fun-stat-card:nth-child(2) .fun-stat-value {
             color: var(--accent2);
         }
-        
+
         .fun-stat-card:nth-child(3) .fun-stat-value {
             color: var(--accent3);
         }
-        
+
         .fun-stat-card:nth-child(4) .fun-stat-value {
             color: #f72585;
         }
-        
+
         .fun-stat-card:nth-child(5) .fun-stat-value {
             color: #4361ee;
         }
-        
+
         .fun-stat-card:nth-child(6) .fun-stat-value {
             color: #4cc9f0;
         }
-        
+
         .fun-stat-card:nth-child(7) .fun-stat-value {
             color: #f77f00;
         }
-        
+
         .fun-stat-card:nth-child(8) .fun-stat-value {
             color: #7209b7;
+        }
+
+        /* Additional colors for new stats */
+        .fun-stat-card:nth-child(9) .fun-stat-value {
+            color: #00b4d8;
+        }
+
+        .fun-stat-card:nth-child(10) .fun-stat-value {
+            color: #fb8500;
+        }
+
+        .fun-stat-card:nth-child(11) .fun-stat-value {
+            color: #06d6a0;
+        }
+
+        .fun-stat-card:nth-child(12) .fun-stat-value {
+            color: #ef476f;
+        }
+
+        .fun-stat-card:nth-child(13) .fun-stat-value {
+            color: #ffd166;
         }
         
         /* Legend for relegation zones and European qualifications */
@@ -474,7 +526,7 @@
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Playoff Candidate</div>
-                    <div class="fun-stat-value">Halmstad</div>
+                    <div class="fun-stat-value">Östers</div>
                     <div class="fun-stat-description">Most frequently predicted for relegation playoff (14th place) with 2 votes</div>
                 </div>
     
@@ -492,7 +544,7 @@
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">The Optimist</div>
-                    <div class="fun-stat-value">Erik</div>
+                    <div class="fun-stat-value">Daniel</div>
                     <div class="fun-stat-description">Ranks top teams higher than others</div>
                 </div>
     
@@ -508,12 +560,18 @@
                     <div class="fun-stat-description">Most predictions different from the consensus</div>
                 </div>
     
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">The Prophet</div>
+                    <div class="fun-stat-value">Sebastian</div>
+                    <div class="fun-stat-description">Predictions most aligned with the group consensus</div>
+                </div>
+    
             </div>
         </section>
         
         <!-- Current Standings Section -->
         <section class="section">
-            <h2 class="section-title"><span class="icon">📊</span> Current Standings</h2>
+            <h2 class="section-title"><span class="icon">📊</span> Average Standings</h2>
             <p class="section-description">Calculated based on everyone's predictions. Lower score indicates higher collective ranking.</p>
             
             <div class="legend">
@@ -541,7 +599,6 @@
                         <tr>
                             <th>Position</th>
                             <th>Team</th>
-                            <th>Score</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -549,82 +606,66 @@
                         <tr class="europaleague">
                             <td>1</td>
                             <td>Hammarby</td>
-                            <td>11</td>
                         </tr>
                         <tr class="conference-league">
                             <td>2</td>
                             <td>AIK</td>
-                            <td>14</td>
                         </tr>
                         <tr class="conference-league">
                             <td>3</td>
                             <td>Malmö</td>
-                            <td>18</td>
                         </tr>
                         <tr class="">
                             <td>4</td>
                             <td>Elfsborg</td>
-                            <td>25</td>
                         </tr>
                         <tr class="">
                             <td>5</td>
                             <td>Djurgården</td>
-                            <td>34</td>
                         </tr>
                         <tr class="">
                             <td>6</td>
                             <td>Mjällby</td>
-                            <td>54</td>
                         </tr>
                         <tr class="">
                             <td>7</td>
                             <td>Häcken</td>
-                            <td>63</td>
                         </tr>
                         <tr class="">
                             <td>8</td>
                             <td>GAIS</td>
-                            <td>73</td>
                         </tr>
                         <tr class="">
                             <td>9</td>
                             <td>Norrköping</td>
-                            <td>74</td>
                         </tr>
                         <tr class="">
                             <td>10</td>
                             <td>Sirius</td>
-                            <td>78</td>
                         </tr>
                         <tr class="">
                             <td>11</td>
                             <td>Göteborg</td>
-                            <td>84</td>
                         </tr>
                         <tr class="">
                             <td>12</td>
                             <td>Brommapojkarna</td>
-                            <td>86</td>
                         </tr>
                         <tr class="">
                             <td>13</td>
                             <td>Degerfor</td>
-                            <td>100</td>
                         </tr>
                         <tr class="relegation-playoff">
                             <td>14</td>
                             <td>Halmstad</td>
-                            <td>118</td>
                         </tr>
                         <tr class="relegation-direct">
                             <td>15</td>
                             <td>Östers</td>
-                            <td>121</td>
                         </tr>
                         <tr class="relegation-direct">
                             <td>16</td>
                             <td>Värnamo</td>
-                            <td>127</td>
                         </tr>
                     </tbody>
                 </table>
@@ -852,8 +893,97 @@
     </div>
     
     <footer>
-        <div>Updated on March 08, 2025 at 12:04</div>
+        <div>Updated on March 08, 2025 at 12:33</div>
         <div>Allsvenskan 2025 Prediction League</div>
     </footer>
+
+    <script>
+        // Function to highlight the same team across all predictions and standings
+        function setupTeamHighlighting() {
+            // Get the predictions table and standings table
+            const predictionsTable = document.getElementById('predictions-table');
+            const standingsTable = document.getElementById('standings-table');
+            if (!predictionsTable || !standingsTable) return;
+            
+            // Get all cells in the predictions table (excluding header and position column)
+            const predictionCells = predictionsTable.querySelectorAll('tbody td:not(:first-child)');
+            
+            // Get all team name cells in the standings table (second column)
+            const standingTeamCells = standingsTable.querySelectorAll('tbody td:nth-child(2)');
+            
+            // For each cell in predictions table, add mouseenter and mouseleave event listeners
+            predictionCells.forEach(cell => {
+                cell.addEventListener('mouseenter', function() {
+                    const teamName = this.textContent.trim();
+                    
+                    // Skip if empty cell
+                    if (!teamName) return;
+                    
+                    // Find all cells with the same team name in predictions and highlight them
+                    predictionCells.forEach(otherCell => {
+                        if (otherCell.textContent.trim() === teamName) {
+                            otherCell.classList.add('team-highlight');
+                        }
+                    });
+                    
+                    // Find the team in standings table and highlight it
+                    standingTeamCells.forEach(teamCell => {
+                        if (teamCell.textContent.trim() === teamName) {
+                            // Highlight the team cell
+                            teamCell.classList.add('team-highlight');
+                            // Also highlight position and score cells (siblings)
+                            teamCell.previousElementSibling?.classList.add('team-highlight');
+                            teamCell.nextElementSibling?.classList.add('team-highlight');
+                        }
+                    });
+                });
+                
+                cell.addEventListener('mouseleave', function() {
+                    // Remove highlight from all cells in both tables
+                    predictionCells.forEach(otherCell => {
+                        otherCell.classList.remove('team-highlight');
+                    });
+                    
+                    standingsTable.querySelectorAll('td.team-highlight').forEach(cell => {
+                        cell.classList.remove('team-highlight');
+                    });
+                });
+            });
+            
+            // Also allow highlighting from standings table to predictions table
+            standingTeamCells.forEach(cell => {
+                cell.addEventListener('mouseenter', function() {
+                    const teamName = this.textContent.trim();
+                    
+                    // Highlight this team row in standings
+                    this.classList.add('team-highlight');
+                    this.previousElementSibling?.classList.add('team-highlight');
+                    this.nextElementSibling?.classList.add('team-highlight');
+                    
+                    // Find all cells with the same team name in predictions and highlight them
+                    predictionCells.forEach(predCell => {
+                        if (predCell.textContent.trim() === teamName) {
+                            predCell.classList.add('team-highlight');
+                        }
+                    });
+                });
+                
+                cell.addEventListener('mouseleave', function() {
+                    // Remove highlight from all cells in both tables
+                    predictionCells.forEach(otherCell => {
+                        otherCell.classList.remove('team-highlight');
+                    });
+                    
+                    standingsTable.querySelectorAll('td.team-highlight').forEach(highlightedCell => {
+                        highlightedCell.classList.remove('team-highlight');
+                    });
+                });
+            });
+        }
+
+        // Call the function when the document is fully loaded
+        document.addEventListener('DOMContentLoaded', setupTeamHighlighting);
+    </script>
+
 </body>
 </html>

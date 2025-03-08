@@ -247,6 +247,79 @@ def calculate_fun_stats(bets, sorted_standings):
         else:
             stats['most_unique'] = most_unique_users[0]
     
+    team_positions = {}
+    for team in sorted_standings.keys():
+        team_positions[team] = []
+    
+    for user in bets.keys():
+        for pos, team in enumerate(bets[user]):
+            if team in team_positions:
+                team_positions[team].append(pos + 1)
+    
+    # Calculate the average position for each team
+    team_avg_pos = {}
+    for team, positions in team_positions.items():
+        if positions:
+            team_avg_pos[team] = sum(positions) / len(positions)
+    
+    # Calculate the difference between consensus ranking and average predicted ranking
+    dark_horse_potential = {}
+    for i, team in enumerate(sorted_standings.keys()):
+        consensus_pos = i + 1  # Position in consensus ranking (1-based)
+        if team in team_avg_pos:
+            # Positive means team is ranked better in consensus than average predictions
+            # Negative means team is predicted better than consensus (dark horse)
+            dark_horse_potential[team] = consensus_pos - team_avg_pos[team]
+    
+    # Find the biggest dark horse (most negative value)
+    if dark_horse_potential:
+        biggest_dark_horse_value = min(dark_horse_potential.values())  # Most negative value
+        biggest_dark_horses = [team for team, val in dark_horse_potential.items() if val == biggest_dark_horse_value]
+        if biggest_dark_horses:
+            if len(biggest_dark_horses) > 1:
+                stats['biggest_dark_horse'] = random.choice(biggest_dark_horses)
+            else:
+                stats['biggest_dark_horse'] = biggest_dark_horses[0]
+            stats['dark_horse_value'] = round(abs(biggest_dark_horse_value), 1)  # Show as positive positions
+    
+    # 2. The "Underrated" Team (most commonly placed worse than consensus)
+    if dark_horse_potential:
+        most_underrated_value = max(dark_horse_potential.values())  # Most positive value
+        most_underrated_teams = [team for team, val in dark_horse_potential.items() if val == most_underrated_value]
+        if most_underrated_teams:
+            if len(most_underrated_teams) > 1:
+                stats['most_underrated'] = random.choice(most_underrated_teams)
+            else:
+                stats['most_underrated'] = most_underrated_teams[0]
+            stats['underrated_value'] = round(most_underrated_value, 1)
+    
+    # 3. "The Prophet" - user whose predictions align most closely with consensus
+    user_alignment = {}
+    consensus_order = list(sorted_standings.keys())
+    
+    for user, user_predictions in bets.items():
+        total_position_diff = 0
+        count = 0
+        for i, team in enumerate(user_predictions):
+            if team in consensus_order:
+                consensus_pos = consensus_order.index(team)
+                total_position_diff += abs(i - consensus_pos)
+                count += 1
+        
+        if count > 0:
+            user_alignment[user] = total_position_diff / count
+    
+    if user_alignment:
+        # Lowest difference = closest to consensus
+        min_difference = min(user_alignment.values())
+        closest_users = [user for user, diff in user_alignment.items() if diff == min_difference]
+        if closest_users:
+            if len(closest_users) > 1:
+                stats['prophet'] = random.choice(closest_users)
+            else:
+                stats['prophet'] = closest_users[0]
+            stats['prophet_score'] = round(min_difference, 1)
+    
     return stats
 
 fun_stats = calculate_fun_stats(bets, sorted_allsvenskan_tip_2025)
@@ -262,6 +335,38 @@ html_content = '''<!DOCTYPE html>
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* Style for highlighted team cells */
+        .team-highlight {
+            background-color: rgba(255, 215, 0, 0.3) !important; /* Golden highlight */
+            box-shadow: inset 0 0 0 2px rgba(255, 215, 0, 0.8) !important;
+            color: white !important;
+            position: relative;
+            z-index: 20;
+        }
+
+        /* Ensure highlighted cells maintain their styling even in relegation/european rows */
+        tr.europaleague td.team-highlight,
+        tr.conference-league td.team-highlight,
+        tr.relegation-direct td.team-highlight,
+        tr.relegation-playoff td.team-highlight {
+            background-color: rgba(255, 215, 0, 0.4) !important;
+        }
+
+        /* Also highlight the same team in the standings table */
+        #standings-table td.team-highlight {
+            background-color: rgba(255, 215, 0, 0.3) !important;
+            box-shadow: inset 0 0 0 2px rgba(255, 215, 0, 0.8) !important;
+            color: white !important;
+        }
+
+        /* Add a subtle transition for smoother highlighting */
+        #predictions-table td,
+        #standings-table td {
+            transition: background-color 0.15s ease, box-shadow 0.15s ease, color 0.15s ease;
+        }
+
+
+
         /* Dark mode color scheme */
         :root {
             --bg-primary: #121212;
@@ -587,37 +692,57 @@ html_content = '''<!DOCTYPE html>
             color: var(--text-secondary);
         }
         
-        /* Color variations for fun stats */
         .fun-stat-card:nth-child(1) .fun-stat-value {
             color: var(--accent);
         }
-        
+
         .fun-stat-card:nth-child(2) .fun-stat-value {
             color: var(--accent2);
         }
-        
+
         .fun-stat-card:nth-child(3) .fun-stat-value {
             color: var(--accent3);
         }
-        
+
         .fun-stat-card:nth-child(4) .fun-stat-value {
             color: #f72585;
         }
-        
+
         .fun-stat-card:nth-child(5) .fun-stat-value {
             color: #4361ee;
         }
-        
+
         .fun-stat-card:nth-child(6) .fun-stat-value {
             color: #4cc9f0;
         }
-        
+
         .fun-stat-card:nth-child(7) .fun-stat-value {
             color: #f77f00;
         }
-        
+
         .fun-stat-card:nth-child(8) .fun-stat-value {
             color: #7209b7;
+        }
+
+        /* Additional colors for new stats */
+        .fun-stat-card:nth-child(9) .fun-stat-value {
+            color: #00b4d8;
+        }
+
+        .fun-stat-card:nth-child(10) .fun-stat-value {
+            color: #fb8500;
+        }
+
+        .fun-stat-card:nth-child(11) .fun-stat-value {
+            color: #06d6a0;
+        }
+
+        .fun-stat-card:nth-child(12) .fun-stat-value {
+            color: #ef476f;
+        }
+
+        .fun-stat-card:nth-child(13) .fun-stat-value {
+            color: #ffd166;
         }
         
         /* Legend for relegation zones and European qualifications */
@@ -788,13 +913,22 @@ if 'most_unique' in fun_stats:
                 </div>
     '''
 
+if 'prophet' in fun_stats:
+    html_content += f'''
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">The Prophet</div>
+                    <div class="fun-stat-value">{html.escape(str(fun_stats['prophet']))}</div>
+                    <div class="fun-stat-description">Predictions most aligned with the group consensus</div>
+                </div>
+    '''
+
 html_content += '''
             </div>
         </section>
         
         <!-- Current Standings Section -->
         <section class="section">
-            <h2 class="section-title"><span class="icon">📊</span> Current Standings</h2>
+            <h2 class="section-title"><span class="icon">📊</span> Average Standings</h2>
             <p class="section-description">Calculated based on everyone's predictions. Lower score indicates higher collective ranking.</p>
             
             <div class="legend">
@@ -822,7 +956,6 @@ html_content += '''
                         <tr>
                             <th>Position</th>
                             <th>Team</th>
-                            <th>Score</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -849,7 +982,6 @@ for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items()):
                         <tr class="{row_class}">
                             <td>{position_display}</td>
                             <td>{html.escape(team)}</td>
-                            <td>{value}</td>
                         </tr>'''
 
 html_content += '''
@@ -912,6 +1044,95 @@ html_content += '''                    </tbody>
         <div>Updated on ''' + datetime.now().strftime("%B %d, %Y at %H:%M") + '''</div>
         <div>Allsvenskan 2025 Prediction League</div>
     </footer>
+
+    <script>
+        // Function to highlight the same team across all predictions and standings
+        function setupTeamHighlighting() {
+            // Get the predictions table and standings table
+            const predictionsTable = document.getElementById('predictions-table');
+            const standingsTable = document.getElementById('standings-table');
+            if (!predictionsTable || !standingsTable) return;
+            
+            // Get all cells in the predictions table (excluding header and position column)
+            const predictionCells = predictionsTable.querySelectorAll('tbody td:not(:first-child)');
+            
+            // Get all team name cells in the standings table (second column)
+            const standingTeamCells = standingsTable.querySelectorAll('tbody td:nth-child(2)');
+            
+            // For each cell in predictions table, add mouseenter and mouseleave event listeners
+            predictionCells.forEach(cell => {
+                cell.addEventListener('mouseenter', function() {
+                    const teamName = this.textContent.trim();
+                    
+                    // Skip if empty cell
+                    if (!teamName) return;
+                    
+                    // Find all cells with the same team name in predictions and highlight them
+                    predictionCells.forEach(otherCell => {
+                        if (otherCell.textContent.trim() === teamName) {
+                            otherCell.classList.add('team-highlight');
+                        }
+                    });
+                    
+                    // Find the team in standings table and highlight it
+                    standingTeamCells.forEach(teamCell => {
+                        if (teamCell.textContent.trim() === teamName) {
+                            // Highlight the team cell
+                            teamCell.classList.add('team-highlight');
+                            // Also highlight position and score cells (siblings)
+                            teamCell.previousElementSibling?.classList.add('team-highlight');
+                            teamCell.nextElementSibling?.classList.add('team-highlight');
+                        }
+                    });
+                });
+                
+                cell.addEventListener('mouseleave', function() {
+                    // Remove highlight from all cells in both tables
+                    predictionCells.forEach(otherCell => {
+                        otherCell.classList.remove('team-highlight');
+                    });
+                    
+                    standingsTable.querySelectorAll('td.team-highlight').forEach(cell => {
+                        cell.classList.remove('team-highlight');
+                    });
+                });
+            });
+            
+            // Also allow highlighting from standings table to predictions table
+            standingTeamCells.forEach(cell => {
+                cell.addEventListener('mouseenter', function() {
+                    const teamName = this.textContent.trim();
+                    
+                    // Highlight this team row in standings
+                    this.classList.add('team-highlight');
+                    this.previousElementSibling?.classList.add('team-highlight');
+                    this.nextElementSibling?.classList.add('team-highlight');
+                    
+                    // Find all cells with the same team name in predictions and highlight them
+                    predictionCells.forEach(predCell => {
+                        if (predCell.textContent.trim() === teamName) {
+                            predCell.classList.add('team-highlight');
+                        }
+                    });
+                });
+                
+                cell.addEventListener('mouseleave', function() {
+                    // Remove highlight from all cells in both tables
+                    predictionCells.forEach(otherCell => {
+                        otherCell.classList.remove('team-highlight');
+                    });
+                    
+                    standingsTable.querySelectorAll('td.team-highlight').forEach(highlightedCell => {
+                        highlightedCell.classList.remove('team-highlight');
+                    });
+                });
+            });
+        }
+
+        // Call the function when the document is fully loaded
+        document.addEventListener('DOMContentLoaded', setupTeamHighlighting);
+    </script>
+
 </body>
 </html>'''
 
@@ -925,3 +1146,4 @@ print("  - README.md: Original GitHub format preserved")
 print("  - Ties in standings are now sorted alphabetically")
 print("  - Fun stats now only show one person for individual stats")
 print("  - Only People's Champion and Direct Relegation Favorite can have multiple teams")
+    
