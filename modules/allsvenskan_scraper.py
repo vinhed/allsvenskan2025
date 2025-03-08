@@ -17,7 +17,7 @@ def get_full_data():
         response.raise_for_status()  # Raise exception for bad status codes
         return response.json()
     except:
-        print(f"Error fetching Allsvenskan standings from API: {e}")
+        print(f"Error fetching Allsvenskan standings from API")
     return []
 
 def get_allsvenskan_standings():
@@ -226,7 +226,7 @@ def generate_live_standings_html(standings, bets):
         
         html += f"""
                 <tr class="{medal_class}">
-                    <td>{position}{' 🥇' if position == 1 else (' 🥈' if position == 2 else (' 🥉' if position == 3 else ''))}</td>
+                    <td>{position}</td>
                     <td>{user}</td>
                     <td>{score_data['score']} pts</td>
                     <td>{score_data['percent']}%</td>

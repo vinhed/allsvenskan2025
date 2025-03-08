@@ -601,7 +601,7 @@ def calculate_fun_stats(bets, sorted_standings):
         champions = [team for team, count in first_place_counter.items() if count == champion_count]
         # Format with commas and & sign
         stats['most_predicted_champion'] = format_team_list(champions)
-        stats['champion_votes'] = f"{champion_count} each" if len(champions) > 1 else champion_count
+        stats['champion_votes'] = champion_count
     
     # Direct relegation (bottom 2 teams)
     direct_relegation_predictions = {}
@@ -618,7 +618,7 @@ def calculate_fun_stats(bets, sorted_standings):
         relegation_teams = [team for team, count in direct_relegation_predictions.items() if count == relegation_count]
         # Format with commas and & sign
         stats['most_predicted_relegation'] = format_team_list(relegation_teams)
-        stats['relegation_votes'] = f"{relegation_count} each" if len(relegation_teams) > 1 else relegation_count
+        stats['relegation_votes'] = relegation_count
     
     # Playoff spot (3rd last position)
     playoff_predictions = {}
@@ -896,8 +896,8 @@ def generate_enhanced_standings_table(sorted_allsvenskan_tip_2025, bets, team_lo
                         <th>Avg. Position</th>
                         <th>Highest Rank</th>
                         <th>Lowest Rank</th>
-                        <th>Top 3 %</th>
-                        <th>Relegation %</th>
+                        <th>Top 3</th>
+                        <th>Relegation</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -1151,7 +1151,7 @@ html_content = '''<!DOCTYPE html>
         body {
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            line-height: 1.5;
+            line-height: 2;
         }
         
         /* Main container */
@@ -1667,7 +1667,6 @@ html_content = '''<!DOCTYPE html>
         /* Add a hover effect to team names */
         .team-name-with-logo:hover {
             opacity: 0.8;
-            cursor: pointer;
         }
 
         /* Custom styling for the score bar */
@@ -1716,7 +1715,7 @@ html_content = '''<!DOCTYPE html>
 
         /* Enhanced standings table styling */
         #standings-table {
-            font-size: 13px;
+            font-size: 12px;
         }
 
         #standings-table th {
