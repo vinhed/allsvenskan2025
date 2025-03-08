@@ -2,6 +2,7 @@ from tabulate import tabulate
 from datetime import datetime
 import html
 from collections import Counter
+import random  # For selecting one person randomly when there are ties
 
 allsvenskan_tip_2025 = {}
 html_output = open("index.html", "w", encoding='utf8')
@@ -85,7 +86,16 @@ readme.write(tabulate(predictions_table, headers=headers, tablefmt="github") + "
 if len(predictions_table) != 16:
     print(f"!!! Warning: Too many teams ({len(predictions_table)}) in table, someone spelled it wrong!!!")
 
-# Calculate additional fun statistics with correct relegation format
+# Helper function to format teams list
+def format_team_list(teams_list):
+    if len(teams_list) == 1:
+        return teams_list[0]
+    elif len(teams_list) == 2:
+        return f"{teams_list[0]} & {teams_list[1]}"
+    else:
+        return ", ".join(teams_list[:-1]) + f" & {teams_list[-1]}"
+
+# Calculate additional fun stats with correct relegation format
 def calculate_fun_stats(bets, sorted_standings):
     stats = {}
     
@@ -98,15 +108,12 @@ def calculate_fun_stats(bets, sorted_standings):
     first_place_predictions = [bets[user][0] for user in bets.keys() if len(bets[user]) > 0]
     first_place_counter = Counter(first_place_predictions)
     if first_place_counter:
-        # Handle ties for most predicted champion
+        # Handle ties for most predicted champion - ALLOW MULTIPLE TEAMS
         champion_count = first_place_counter.most_common(1)[0][1]
         champions = [team for team, count in first_place_counter.items() if count == champion_count]
-        if len(champions) > 1:
-            stats['most_predicted_champion'] = " & ".join(champions)
-            stats['champion_votes'] = f"{champion_count} each"
-        else:
-            stats['most_predicted_champion'] = champions[0]
-            stats['champion_votes'] = champion_count
+        # Format with commas and & sign
+        stats['most_predicted_champion'] = format_team_list(champions)
+        stats['champion_votes'] = f"{champion_count} each" if len(champions) > 1 else champion_count
     
     # Direct relegation (bottom 2 teams)
     direct_relegation_predictions = {}
@@ -118,16 +125,12 @@ def calculate_fun_stats(bets, sorted_standings):
                 direct_relegation_predictions[team] += 1
     
     if direct_relegation_predictions:
-        # Find team most predicted for direct relegation
-        relegation_team, relegation_count = max(direct_relegation_predictions.items(), key=lambda x: x[1])
-        # Handle ties
+        # Find team most predicted for direct relegation - ALLOW MULTIPLE TEAMS
+        relegation_count = max(direct_relegation_predictions.values())
         relegation_teams = [team for team, count in direct_relegation_predictions.items() if count == relegation_count]
-        if len(relegation_teams) > 1:
-            stats['most_predicted_relegation'] = " & ".join(relegation_teams)
-            stats['relegation_votes'] = f"{relegation_count} each"
-        else:
-            stats['most_predicted_relegation'] = relegation_team
-            stats['relegation_votes'] = relegation_count
+        # Format with commas and & sign
+        stats['most_predicted_relegation'] = format_team_list(relegation_teams)
+        stats['relegation_votes'] = f"{relegation_count} each" if len(relegation_teams) > 1 else relegation_count
     
     # Playoff spot (3rd last position)
     playoff_predictions = {}
@@ -139,16 +142,15 @@ def calculate_fun_stats(bets, sorted_standings):
             playoff_predictions[team] += 1
     
     if playoff_predictions:
-        # Find team most predicted for playoff
+        # Find team most predicted for playoff - ONLY ONE TEAM
         playoff_team, playoff_count = max(playoff_predictions.items(), key=lambda x: x[1])
-        # Handle ties
+        # Handle ties by selecting one randomly
         playoff_teams = [team for team, count in playoff_predictions.items() if count == playoff_count]
         if len(playoff_teams) > 1:
-            stats['most_predicted_playoff'] = " & ".join(playoff_teams)
-            stats['playoff_votes'] = f"{playoff_count} each"
+            stats['most_predicted_playoff'] = random.choice(playoff_teams)
         else:
-            stats['most_predicted_playoff'] = playoff_team
-            stats['playoff_votes'] = playoff_count
+            stats['most_predicted_playoff'] = playoff_teams[0]
+        stats['playoff_votes'] = playoff_count
     
     # Most divisive team (highest standard deviation in predictions)
     team_positions = {}
@@ -174,7 +176,7 @@ def calculate_fun_stats(bets, sorted_standings):
         most_divisive_variance = max(team_variance.values())
         most_divisive_teams = [team for team, var in team_variance.items() if var == most_divisive_variance]
         if len(most_divisive_teams) > 1:
-            stats['most_divisive_team'] = " & ".join(most_divisive_teams)
+            stats['most_divisive_team'] = random.choice(most_divisive_teams)
         else:
             stats['most_divisive_team'] = most_divisive_teams[0]
         stats['divisive_variance'] = round(most_divisive_variance, 1)
@@ -184,7 +186,7 @@ def calculate_fun_stats(bets, sorted_standings):
         most_agreed_variance = min(team_variance.values())
         most_agreed_teams = [team for team, var in team_variance.items() if var == most_agreed_variance]
         if len(most_agreed_teams) > 1:
-            stats['most_agreed_team'] = " & ".join(most_agreed_teams)
+            stats['most_agreed_team'] = random.choice(most_agreed_teams)
         else:
             stats['most_agreed_team'] = most_agreed_teams[0]
         stats['agreed_variance'] = round(most_agreed_variance, 1)
@@ -207,18 +209,19 @@ def calculate_fun_stats(bets, sorted_standings):
             user_optimism[user] = total_pos / counted_teams
     
     if user_optimism:
-        # Handle ties for optimistic/pessimistic
+        # Handle ties for optimistic - ONLY ONE PERSON
         min_optimism = min(user_optimism.values())
         most_optimistic_users = [user for user, opt in user_optimism.items() if opt == min_optimism]
         if len(most_optimistic_users) > 1:
-            stats['most_optimistic'] = " & ".join(most_optimistic_users)
+            stats['most_optimistic'] = random.choice(most_optimistic_users)
         else:
             stats['most_optimistic'] = most_optimistic_users[0]
         
+        # Handle ties for pessimistic - ONLY ONE PERSON
         max_optimism = max(user_optimism.values())
         most_pessimistic_users = [user for user, opt in user_optimism.items() if opt == max_optimism]
         if len(most_pessimistic_users) > 1:
-            stats['most_pessimistic'] = " & ".join(most_pessimistic_users)
+            stats['most_pessimistic'] = random.choice(most_pessimistic_users)
         else:
             stats['most_pessimistic'] = most_pessimistic_users[0]
     
@@ -236,10 +239,11 @@ def calculate_fun_stats(bets, sorted_standings):
         user_uniqueness[user] = differences
     
     if user_uniqueness:
+        # Handle ties for most unique - ONLY ONE PERSON
         max_uniqueness = max(user_uniqueness.values())
         most_unique_users = [user for user, unique in user_uniqueness.items() if unique == max_uniqueness]
         if len(most_unique_users) > 1:
-            stats['most_unique'] = " & ".join(most_unique_users)
+            stats['most_unique'] = random.choice(most_unique_users)
         else:
             stats['most_unique'] = most_unique_users[0]
     
@@ -275,6 +279,8 @@ html_content = '''<!DOCTYPE html>
             --border-color: #333333;
             --relegation-direct: rgba(220, 53, 69, 0.2);
             --relegation-playoff: rgba(255, 193, 7, 0.1);
+            --europaleague: rgba(113, 83, 219, 0.2);
+            --conferenceLeague: rgba(0, 128, 255, 0.1);
         }
         
         * {
@@ -424,7 +430,15 @@ html_content = '''<!DOCTYPE html>
             background-color: var(--row-hover);
         }
         
-        /* Relegation highlighting in standings table */
+        /* Relegation and European qualification highlighting in standings table */
+        tr.europaleague td {
+            background-color: var(--europaleague);
+        }
+        
+        tr.conference-league td {
+            background-color: var(--conferenceLeague);
+        }
+        
         tr.relegation-direct td {
             background-color: var(--relegation-direct);
         }
@@ -434,6 +448,16 @@ html_content = '''<!DOCTYPE html>
         }
         
         /* Make sure the first column keeps the relegation styling on even/odd rows */
+        tr.europaleague:nth-child(even) td:first-child,
+        tr.europaleague:nth-child(odd) td:first-child {
+            background-color: var(--europaleague);
+        }
+        
+        tr.conference-league:nth-child(even) td:first-child,
+        tr.conference-league:nth-child(odd) td:first-child {
+            background-color: var(--conferenceLeague);
+        }
+        
         tr.relegation-direct:nth-child(even) td:first-child,
         tr.relegation-direct:nth-child(odd) td:first-child {
             background-color: var(--relegation-direct);
@@ -444,7 +468,23 @@ html_content = '''<!DOCTYPE html>
             background-color: var(--relegation-playoff);
         }
         
-        /* Ensure relegation rows keep their styling on hover */
+        /* Ensure rows keep their styling on hover */
+        tr.europaleague:hover td {
+            background-color: rgba(113, 83, 219, 0.3);
+        }
+        
+        tr.europaleague:hover td:first-child {
+            background-color: rgba(113, 83, 219, 0.3);
+        }
+        
+        tr.conference-league:hover td {
+            background-color: rgba(0, 128, 255, 0.2);
+        }
+        
+        tr.conference-league:hover td:first-child {
+            background-color: rgba(0, 128, 255, 0.2);
+        }
+        
         tr.relegation-direct:hover td {
             background-color: rgba(220, 53, 69, 0.3);
         }
@@ -579,7 +619,7 @@ html_content = '''<!DOCTYPE html>
             color: #7209b7;
         }
         
-        /* Legend for relegation zones */
+        /* Legend for relegation zones and European qualifications */
         .legend {
             display: flex;
             gap: 15px;
@@ -598,6 +638,14 @@ html_content = '''<!DOCTYPE html>
             height: 15px;
             margin-right: 8px;
             border-radius: 3px;
+        }
+        
+        .legend-europaleague {
+            background-color: var(--europaleague);
+        }
+        
+        .legend-conference {
+            background-color: var(--conferenceLeague);
         }
         
         .legend-direct {
@@ -750,6 +798,14 @@ html_content += '''
             
             <div class="legend">
                 <div class="legend-item">
+                    <div class="legend-color legend-europaleague"></div>
+                    <span>Europa League (1st Place)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-conference"></div>
+                    <span>Conference League (2nd-3rd Place)</span>
+                </div>
+                <div class="legend-item">
                     <div class="legend-color legend-direct"></div>
                     <span>Direct Relegation (Bottom 2)</span>
                 </div>
@@ -771,7 +827,7 @@ html_content += '''
                     '<tbody>
 '''
 
-# Add standings table rows with relegation highlighting
+# Add standings table rows with relegation highlighting and European qualification
 team_count = len(sorted_allsvenskan_tip_2025)
 for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items()):
     position_display = f"{pos+1}"
@@ -780,13 +836,12 @@ for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items()):
     # Add medals to top 3
     if pos == 0:
         position_display += " 🥇"
-    elif pos == 1:
-        position_display += " 🥈"
-    elif pos == 2:
-        position_display += " 🥉"
-    
+        row_class = "europaleague"  # 1st place - Europa League
+    elif pos == 1 or pos == 2:
+        position_display += " 🥈" if pos == 1 else " 🥉"
+        row_class = "conference-league"  # 2nd and 3rd place - Conference League
     # Add relegation classes
-    if pos >= team_count - 2:  # Bottom 2 teams (direct relegation)
+    elif pos >= team_count - 2:  # Bottom 2 teams (direct relegation)
         row_class = "relegation-direct"
     elif pos == team_count - 3:  # 3rd from bottom (playoff)
         row_class = "relegation-playoff"
@@ -825,12 +880,16 @@ html_content += '''                        </tr>
                     <tbody>
 '''
 
-# Add prediction rows with relegation highlighting
+# Add prediction rows with relegation highlighting and European qualification
 for i in range(max_bets):
     row_class = ""
     
-    # Highlight relegation positions in the position column
-    if i >= max_bets - 2:  # Bottom 2 positions (direct relegation)
+    # Highlight European qualification and relegation positions in the position column
+    if i == 0:  # Top position (Europa League)
+        row_class = "europaleague"
+    elif i == 1 or i == 2:  # 2nd and 3rd position (Conference League)
+        row_class = "conference-league"
+    elif i >= max_bets - 2:  # Bottom 2 positions (direct relegation)
         row_class = "relegation-direct"
     elif i == max_bets - 3:  # 3rd from bottom position (playoff)
         row_class = "relegation-playoff"
@@ -861,7 +920,9 @@ html_output.write(html_content)
 html_output.close()
 readme.close()
 
-print("✓ Successfully generated files with improved relegation statistics!")
-print("  - index.html: Dark mode design with proper relegation highlighting")
+print("✓ Successfully generated files with improved relegation statistics and European qualification!")
+print("  - index.html: Dark mode design with proper relegation highlighting and European qualification")
 print("  - README.md: Original GitHub format preserved")
 print("  - Ties in standings are now sorted alphabetically")
+print("  - Fun stats now only show one person for individual stats")
+print("  - Only People's Champion and Direct Relegation Favorite can have multiple teams")

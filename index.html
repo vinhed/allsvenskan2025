@@ -25,6 +25,8 @@
             --border-color: #333333;
             --relegation-direct: rgba(220, 53, 69, 0.2);
             --relegation-playoff: rgba(255, 193, 7, 0.1);
+            --europaleague: rgba(113, 83, 219, 0.2);
+            --conferenceLeague: rgba(0, 128, 255, 0.1);
         }
         
         * {
@@ -174,7 +176,15 @@
             background-color: var(--row-hover);
         }
         
-        /* Relegation highlighting in standings table */
+        /* Relegation and European qualification highlighting in standings table */
+        tr.europaleague td {
+            background-color: var(--europaleague);
+        }
+        
+        tr.conference-league td {
+            background-color: var(--conferenceLeague);
+        }
+        
         tr.relegation-direct td {
             background-color: var(--relegation-direct);
         }
@@ -184,6 +194,16 @@
         }
         
         /* Make sure the first column keeps the relegation styling on even/odd rows */
+        tr.europaleague:nth-child(even) td:first-child,
+        tr.europaleague:nth-child(odd) td:first-child {
+            background-color: var(--europaleague);
+        }
+        
+        tr.conference-league:nth-child(even) td:first-child,
+        tr.conference-league:nth-child(odd) td:first-child {
+            background-color: var(--conferenceLeague);
+        }
+        
         tr.relegation-direct:nth-child(even) td:first-child,
         tr.relegation-direct:nth-child(odd) td:first-child {
             background-color: var(--relegation-direct);
@@ -194,7 +214,23 @@
             background-color: var(--relegation-playoff);
         }
         
-        /* Ensure relegation rows keep their styling on hover */
+        /* Ensure rows keep their styling on hover */
+        tr.europaleague:hover td {
+            background-color: rgba(113, 83, 219, 0.3);
+        }
+        
+        tr.europaleague:hover td:first-child {
+            background-color: rgba(113, 83, 219, 0.3);
+        }
+        
+        tr.conference-league:hover td {
+            background-color: rgba(0, 128, 255, 0.2);
+        }
+        
+        tr.conference-league:hover td:first-child {
+            background-color: rgba(0, 128, 255, 0.2);
+        }
+        
         tr.relegation-direct:hover td {
             background-color: rgba(220, 53, 69, 0.3);
         }
@@ -329,7 +365,7 @@
             color: #7209b7;
         }
         
-        /* Legend for relegation zones */
+        /* Legend for relegation zones and European qualifications */
         .legend {
             display: flex;
             gap: 15px;
@@ -348,6 +384,14 @@
             height: 15px;
             margin-right: 8px;
             border-radius: 3px;
+        }
+        
+        .legend-europaleague {
+            background-color: var(--europaleague);
+        }
+        
+        .legend-conference {
+            background-color: var(--conferenceLeague);
         }
         
         .legend-direct {
@@ -429,8 +473,8 @@
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Playoff Candidate</div>
-                    <div class="fun-stat-value">Brommapojkarna &amp; Halmstad &amp; Östers &amp; Värnamo</div>
-                    <div class="fun-stat-description">Most frequently predicted for relegation playoff (14th place) with 2 each votes</div>
+                    <div class="fun-stat-value">Brommapojkarna</div>
+                    <div class="fun-stat-description">Most frequently predicted for relegation playoff (14th place) with 2 votes</div>
                 </div>
     
                 <div class="fun-stat-card">
@@ -447,7 +491,7 @@
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">The Optimist</div>
-                    <div class="fun-stat-value">Jonte &amp; Valentino &amp; Erik</div>
+                    <div class="fun-stat-value">Valentino</div>
                     <div class="fun-stat-description">Ranks top teams higher than others</div>
                 </div>
     
@@ -473,6 +517,14 @@
             
             <div class="legend">
                 <div class="legend-item">
+                    <div class="legend-color legend-europaleague"></div>
+                    <span>Europa League (1st Place)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-conference"></div>
+                    <span>Conference League (2nd-3rd Place)</span>
+                </div>
+                <div class="legend-item">
                     <div class="legend-color legend-direct"></div>
                     <span>Direct Relegation (Bottom 2)</span>
                 </div>
@@ -493,17 +545,17 @@
                     </thead>'
                     '<tbody>
 
-                        <tr class="">
+                        <tr class="europaleague">
                             <td>1 🥇</td>
                             <td>Hammarby</td>
                             <td>9</td>
                         </tr>
-                        <tr class="">
+                        <tr class="conference-league">
                             <td>2 🥈</td>
                             <td>AIK</td>
                             <td>10</td>
                         </tr>
-                        <tr class="">
+                        <tr class="conference-league">
                             <td>3 🥉</td>
                             <td>Malmö</td>
                             <td>18</td>
@@ -599,7 +651,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr class="">
+                        <tr class="europaleague">
                             <td>1</td>
                             <td>AIK</td>
                             <td>Hammarby</td>
@@ -610,7 +662,7 @@
                             <td>AIK</td>
                             <td>Hammarby</td>
                         </tr>
-                        <tr class="">
+                        <tr class="conference-league">
                             <td>2</td>
                             <td>Elfsborg</td>
                             <td>AIK</td>
@@ -621,7 +673,7 @@
                             <td>Malmö</td>
                             <td>Malmö</td>
                         </tr>
-                        <tr class="">
+                        <tr class="conference-league">
                             <td>3</td>
                             <td>Hammarby</td>
                             <td>Malmö</td>
@@ -782,7 +834,7 @@
     </div>
     
     <footer>
-        <div>Updated on March 08, 2025 at 08:59</div>
+        <div>Updated on March 08, 2025 at 09:09</div>
         <div>Allsvenskan 2025 Prediction League</div>
     </footer>
 </body>
