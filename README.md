@@ -14,8 +14,8 @@
 |   8 | Norrköping     |      66 |
 |   9 | Sirius         |      66 |
 |  10 | GAIS           |      68 |
-|  11 | Göteborg       |      75 |
-|  12 | Brommapojkarna |      75 |
+|  11 | Brommapojkarna |      75 |
+|  12 | Göteborg       |      75 |
 |  13 | Degerfor       |      87 |
 |  14 | Östers         |     107 |
 |  15 | Halmstad       |     108 |

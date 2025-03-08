@@ -1,6 +1,7 @@
 from tabulate import tabulate
 from datetime import datetime
 import html
+from collections import Counter
 
 allsvenskan_tip_2025 = {}
 html_output = open("index.html", "w", encoding='utf8')
@@ -31,10 +32,24 @@ for user in bets.keys():
         else:
             allsvenskan_tip_2025[bet] += i
 
+# Handle ties in scoring by sorting alphabetically as a tiebreaker
+sorted_allsvenskan_tip_2025 = {}
+grouped_by_score = {}
+
+# Group teams by their score
+for team, score in allsvenskan_tip_2025.items():
+    if score not in grouped_by_score:
+        grouped_by_score[score] = []
+    grouped_by_score[score].append(team)
+
+# Sort scores and within each score group, sort teams alphabetically
+for score in sorted(grouped_by_score.keys()):
+    for team in sorted(grouped_by_score[score]):
+        sorted_allsvenskan_tip_2025[team] = score
+
 # Keep original README generation for compatibility
 readme.write("# 🏆 Grabbarnas Allsvenskan 2025 🏆\n\n")
 readme.write("## 📊 Current Standings\n`Calculated based on everyones prediction (lower score is better)`\n")
-sorted_allsvenskan_tip_2025 = {k: v for k, v in sorted(allsvenskan_tip_2025.items(), key=lambda item: item[1])}
 table_data = [(pos+1, team, value) for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items())]
 
 def highlight_top_teams(table_string):
@@ -70,7 +85,169 @@ readme.write(tabulate(predictions_table, headers=headers, tablefmt="github") + "
 if len(predictions_table) != 16:
     print(f"!!! Warning: Too many teams ({len(predictions_table)}) in table, someone spelled it wrong!!!")
 
-# Generate Dark Mode HTML with proper alternating row colors and no gold/silver/bronze
+# Calculate additional fun statistics with correct relegation format
+def calculate_fun_stats(bets, sorted_standings):
+    stats = {}
+    
+    # Flatten all predictions into a single list
+    all_predictions = []
+    for user, predictions in bets.items():
+        all_predictions.extend(predictions)
+    
+    # Most frequently predicted team for 1st place
+    first_place_predictions = [bets[user][0] for user in bets.keys() if len(bets[user]) > 0]
+    first_place_counter = Counter(first_place_predictions)
+    if first_place_counter:
+        # Handle ties for most predicted champion
+        champion_count = first_place_counter.most_common(1)[0][1]
+        champions = [team for team, count in first_place_counter.items() if count == champion_count]
+        if len(champions) > 1:
+            stats['most_predicted_champion'] = " & ".join(champions)
+            stats['champion_votes'] = f"{champion_count} each"
+        else:
+            stats['most_predicted_champion'] = champions[0]
+            stats['champion_votes'] = champion_count
+    
+    # Direct relegation (bottom 2 teams)
+    direct_relegation_predictions = {}
+    for user in bets.keys():
+        if len(bets[user]) >= 2:  # Ensure there are enough predictions
+            for team in bets[user][-2:]:  # Get bottom 2 teams
+                if team not in direct_relegation_predictions:
+                    direct_relegation_predictions[team] = 0
+                direct_relegation_predictions[team] += 1
+    
+    if direct_relegation_predictions:
+        # Find team most predicted for direct relegation
+        relegation_team, relegation_count = max(direct_relegation_predictions.items(), key=lambda x: x[1])
+        # Handle ties
+        relegation_teams = [team for team, count in direct_relegation_predictions.items() if count == relegation_count]
+        if len(relegation_teams) > 1:
+            stats['most_predicted_relegation'] = " & ".join(relegation_teams)
+            stats['relegation_votes'] = f"{relegation_count} each"
+        else:
+            stats['most_predicted_relegation'] = relegation_team
+            stats['relegation_votes'] = relegation_count
+    
+    # Playoff spot (3rd last position)
+    playoff_predictions = {}
+    for user in bets.keys():
+        if len(bets[user]) >= 3:  # Ensure there are enough predictions
+            team = bets[user][-3]  # Third from bottom
+            if team not in playoff_predictions:
+                playoff_predictions[team] = 0
+            playoff_predictions[team] += 1
+    
+    if playoff_predictions:
+        # Find team most predicted for playoff
+        playoff_team, playoff_count = max(playoff_predictions.items(), key=lambda x: x[1])
+        # Handle ties
+        playoff_teams = [team for team, count in playoff_predictions.items() if count == playoff_count]
+        if len(playoff_teams) > 1:
+            stats['most_predicted_playoff'] = " & ".join(playoff_teams)
+            stats['playoff_votes'] = f"{playoff_count} each"
+        else:
+            stats['most_predicted_playoff'] = playoff_team
+            stats['playoff_votes'] = playoff_count
+    
+    # Most divisive team (highest standard deviation in predictions)
+    team_positions = {}
+    for team in sorted_standings.keys():
+        team_positions[team] = []
+    
+    for user in bets.keys():
+        for pos, team in enumerate(bets[user]):
+            if team in team_positions:
+                team_positions[team].append(pos + 1)
+    
+    # Calculate position variance for each team
+    team_variance = {}
+    for team, positions in team_positions.items():
+        if positions:  # Check if there are any positions
+            # Calculate variance if we have at least 2 positions
+            if len(positions) >= 2:
+                mean = sum(positions) / len(positions)
+                variance = sum((pos - mean) ** 2 for pos in positions) / len(positions)
+                team_variance[team] = variance
+    
+    if team_variance:
+        most_divisive_variance = max(team_variance.values())
+        most_divisive_teams = [team for team, var in team_variance.items() if var == most_divisive_variance]
+        if len(most_divisive_teams) > 1:
+            stats['most_divisive_team'] = " & ".join(most_divisive_teams)
+        else:
+            stats['most_divisive_team'] = most_divisive_teams[0]
+        stats['divisive_variance'] = round(most_divisive_variance, 1)
+    
+    # Find highest agreement team (team with lowest variance)
+    if team_variance:
+        most_agreed_variance = min(team_variance.values())
+        most_agreed_teams = [team for team, var in team_variance.items() if var == most_agreed_variance]
+        if len(most_agreed_teams) > 1:
+            stats['most_agreed_team'] = " & ".join(most_agreed_teams)
+        else:
+            stats['most_agreed_team'] = most_agreed_teams[0]
+        stats['agreed_variance'] = round(most_agreed_variance, 1)
+    
+    # Calculate the most optimistic and pessimistic predictors
+    user_optimism = {}
+    for user in bets.keys():
+        # Calculate average predicted position for top 5 teams in consensus ranking
+        top_teams = list(sorted_standings.keys())[:5]
+        user_predictions = bets[user]
+        
+        total_pos = 0
+        counted_teams = 0
+        for team in top_teams:
+            if team in user_predictions:
+                total_pos += user_predictions.index(team) + 1
+                counted_teams += 1
+        
+        if counted_teams > 0:
+            user_optimism[user] = total_pos / counted_teams
+    
+    if user_optimism:
+        # Handle ties for optimistic/pessimistic
+        min_optimism = min(user_optimism.values())
+        most_optimistic_users = [user for user, opt in user_optimism.items() if opt == min_optimism]
+        if len(most_optimistic_users) > 1:
+            stats['most_optimistic'] = " & ".join(most_optimistic_users)
+        else:
+            stats['most_optimistic'] = most_optimistic_users[0]
+        
+        max_optimism = max(user_optimism.values())
+        most_pessimistic_users = [user for user, opt in user_optimism.items() if opt == max_optimism]
+        if len(most_pessimistic_users) > 1:
+            stats['most_pessimistic'] = " & ".join(most_pessimistic_users)
+        else:
+            stats['most_pessimistic'] = most_pessimistic_users[0]
+    
+    # Calculate most unique predictor (most picks different from consensus)
+    user_uniqueness = {}
+    consensus_order = list(sorted_standings.keys())
+    
+    for user, user_predictions in bets.items():
+        differences = 0
+        for i, team in enumerate(user_predictions):
+            if i < len(consensus_order):
+                consensus_pos = consensus_order.index(team)
+                differences += abs(i - consensus_pos)
+        
+        user_uniqueness[user] = differences
+    
+    if user_uniqueness:
+        max_uniqueness = max(user_uniqueness.values())
+        most_unique_users = [user for user, unique in user_uniqueness.items() if unique == max_uniqueness]
+        if len(most_unique_users) > 1:
+            stats['most_unique'] = " & ".join(most_unique_users)
+        else:
+            stats['most_unique'] = most_unique_users[0]
+    
+    return stats
+
+fun_stats = calculate_fun_stats(bets, sorted_allsvenskan_tip_2025)
+
+# Generate Dark Mode HTML with updated fun statistics
 html_content = '''<!DOCTYPE html>
 <html lang="sv">
 <head>
@@ -89,11 +266,15 @@ html_content = '''<!DOCTYPE html>
             --text-primary: #ffffff;
             --text-secondary: #aaaaaa;
             --accent: #3a86ff;
+            --accent2: #4cc9f0;
+            --accent3: #7209b7;
             --row-even: #1e1e1e;
             --row-odd: #252525;
             --row-hover: #303030;
             --header-bg: #111111;
             --border-color: #333333;
+            --relegation-direct: rgba(220, 53, 69, 0.2);
+            --relegation-playoff: rgba(255, 193, 7, 0.1);
         }
         
         * {
@@ -243,6 +424,43 @@ html_content = '''<!DOCTYPE html>
             background-color: var(--row-hover);
         }
         
+        /* Relegation highlighting in standings table */
+        tr.relegation-direct td {
+            background-color: var(--relegation-direct);
+        }
+        
+        tr.relegation-playoff td {
+            background-color: var(--relegation-playoff);
+        }
+        
+        /* Make sure the first column keeps the relegation styling on even/odd rows */
+        tr.relegation-direct:nth-child(even) td:first-child,
+        tr.relegation-direct:nth-child(odd) td:first-child {
+            background-color: var(--relegation-direct);
+        }
+        
+        tr.relegation-playoff:nth-child(even) td:first-child,
+        tr.relegation-playoff:nth-child(odd) td:first-child {
+            background-color: var(--relegation-playoff);
+        }
+        
+        /* Ensure relegation rows keep their styling on hover */
+        tr.relegation-direct:hover td {
+            background-color: rgba(220, 53, 69, 0.3);
+        }
+        
+        tr.relegation-direct:hover td:first-child {
+            background-color: rgba(220, 53, 69, 0.3);
+        }
+        
+        tr.relegation-playoff:hover td {
+            background-color: rgba(255, 193, 7, 0.2);
+        }
+        
+        tr.relegation-playoff:hover td:first-child {
+            background-color: rgba(255, 193, 7, 0.2);
+        }
+        
         /* Stats section */
         .stats-grid {
             display: grid;
@@ -265,10 +483,14 @@ html_content = '''<!DOCTYPE html>
         }
         
         .stat-value {
-            font-size: 2.5rem;
+            font-size: 1.8rem;
             font-weight: 700;
             color: var(--accent);
             margin-bottom: 5px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         
         .stat-label {
@@ -276,6 +498,114 @@ html_content = '''<!DOCTYPE html>
             font-size: 0.9rem;
             text-transform: uppercase;
             letter-spacing: 1px;
+        }
+        
+        /* Fun stats section */
+        .fun-stats-section {
+            background-color: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .fun-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .fun-stat-card {
+            background-color: var(--bg-tertiary);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+        
+        .fun-stat-card:hover {
+            transform: translateY(-3px);
+        }
+        
+        .fun-stat-title {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+        
+        .fun-stat-value {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .fun-stat-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        /* Color variations for fun stats */
+        .fun-stat-card:nth-child(1) .fun-stat-value {
+            color: var(--accent);
+        }
+        
+        .fun-stat-card:nth-child(2) .fun-stat-value {
+            color: var(--accent2);
+        }
+        
+        .fun-stat-card:nth-child(3) .fun-stat-value {
+            color: var(--accent3);
+        }
+        
+        .fun-stat-card:nth-child(4) .fun-stat-value {
+            color: #f72585;
+        }
+        
+        .fun-stat-card:nth-child(5) .fun-stat-value {
+            color: #4361ee;
+        }
+        
+        .fun-stat-card:nth-child(6) .fun-stat-value {
+            color: #4cc9f0;
+        }
+        
+        .fun-stat-card:nth-child(7) .fun-stat-value {
+            color: #f77f00;
+        }
+        
+        .fun-stat-card:nth-child(8) .fun-stat-value {
+            color: #7209b7;
+        }
+        
+        /* Legend for relegation zones */
+        .legend {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+        
+        .legend-color {
+            width: 15px;
+            height: 15px;
+            margin-right: 8px;
+            border-radius: 3px;
+        }
+        
+        .legend-direct {
+            background-color: var(--relegation-direct);
+        }
+        
+        .legend-playoff {
+            background-color: var(--relegation-playoff);
         }
         
         /* Footer */
@@ -297,7 +627,7 @@ html_content = '''<!DOCTYPE html>
                 padding: 20px;
             }
             
-            .stats-grid {
+            .stats-grid, .fun-stats-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -328,10 +658,106 @@ html_content = '''<!DOCTYPE html>
             </div>
         </div>
         
+        <!-- Fun Stats Section -->
+        <section class="fun-stats-section">
+            <h2 class="section-title"><span class="icon">🎮</span> Fun Stats</h2>
+            <p class="section-description">Interesting insights from everyone's predictions</p>
+            
+            <div class="fun-stats-grid">
+'''
+
+# Add fun stats cards
+if 'most_predicted_champion' in fun_stats:
+    html_content += f'''
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">People's Champion</div>
+                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_predicted_champion']))}</div>
+                    <div class="fun-stat-description">Most frequently predicted to win with {fun_stats['champion_votes']} votes</div>
+                </div>
+    '''
+
+if 'most_predicted_relegation' in fun_stats:
+    html_content += f'''
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">Direct Relegation Favorite</div>
+                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_predicted_relegation']))}</div>
+                    <div class="fun-stat-description">Most frequently predicted for direct relegation (bottom 2) with {fun_stats['relegation_votes']} votes</div>
+                </div>
+    '''
+
+if 'most_predicted_playoff' in fun_stats:
+    html_content += f'''
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">Playoff Candidate</div>
+                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_predicted_playoff']))}</div>
+                    <div class="fun-stat-description">Most frequently predicted for relegation playoff (14th place) with {fun_stats['playoff_votes']} votes</div>
+                </div>
+    '''
+
+if 'most_divisive_team' in fun_stats:
+    html_content += f'''
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">Most Divisive Team</div>
+                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_divisive_team']))}</div>
+                    <div class="fun-stat-description">Highest variance in predicted positions (variance: {fun_stats['divisive_variance']})</div>
+                </div>
+    '''
+
+if 'most_agreed_team' in fun_stats:
+    html_content += f'''
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">Most Agreed Upon Team</div>
+                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_agreed_team']))}</div>
+                    <div class="fun-stat-description">Lowest variance in predicted positions (variance: {fun_stats['agreed_variance']})</div>
+                </div>
+    '''
+
+if 'most_optimistic' in fun_stats:
+    html_content += f'''
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">The Optimist</div>
+                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_optimistic']))}</div>
+                    <div class="fun-stat-description">Ranks top teams higher than others</div>
+                </div>
+    '''
+
+if 'most_pessimistic' in fun_stats:
+    html_content += f'''
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">The Pessimist</div>
+                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_pessimistic']))}</div>
+                    <div class="fun-stat-description">Ranks top teams lower than others</div>
+                </div>
+    '''
+
+if 'most_unique' in fun_stats:
+    html_content += f'''
+                <div class="fun-stat-card">
+                    <div class="fun-stat-title">The Maverick</div>
+                    <div class="fun-stat-value">{html.escape(str(fun_stats['most_unique']))}</div>
+                    <div class="fun-stat-description">Most predictions different from the consensus</div>
+                </div>
+    '''
+
+html_content += '''
+            </div>
+        </section>
+        
         <!-- Current Standings Section -->
         <section class="section">
             <h2 class="section-title"><span class="icon">📊</span> Current Standings</h2>
             <p class="section-description">Calculated based on everyone's predictions. Lower score indicates higher collective ranking.</p>
+            
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-color legend-direct"></div>
+                    <span>Direct Relegation (Bottom 2)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color legend-playoff"></div>
+                    <span>Relegation Playoff (14th Place)</span>
+                </div>
+            </div>
             
             <div class="table-wrapper">
                 <table id="standings-table">
@@ -341,13 +767,17 @@ html_content = '''<!DOCTYPE html>
                             <th>Team</th>
                             <th>Score</th>
                         </tr>
-                    </thead>
-                    <tbody>
+                    </thead>'
+                    '<tbody>
 '''
 
-# Add standings table rows - without medal classes
+# Add standings table rows with relegation highlighting
+team_count = len(sorted_allsvenskan_tip_2025)
 for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items()):
     position_display = f"{pos+1}"
+    row_class = ""
+    
+    # Add medals to top 3
     if pos == 0:
         position_display += " 🥇"
     elif pos == 1:
@@ -355,8 +785,14 @@ for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items()):
     elif pos == 2:
         position_display += " 🥉"
     
+    # Add relegation classes
+    if pos >= team_count - 2:  # Bottom 2 teams (direct relegation)
+        row_class = "relegation-direct"
+    elif pos == team_count - 3:  # 3rd from bottom (playoff)
+        row_class = "relegation-playoff"
+    
     html_content += f'''
-                        <tr>
+                        <tr class="{row_class}">
                             <td>{position_display}</td>
                             <td>{html.escape(team)}</td>
                             <td>{value}</td>
@@ -389,9 +825,17 @@ html_content += '''                        </tr>
                     <tbody>
 '''
 
-# Add prediction rows
+# Add prediction rows with relegation highlighting
 for i in range(max_bets):
-    html_content += f'                        <tr>\n'
+    row_class = ""
+    
+    # Highlight relegation positions in the position column
+    if i >= max_bets - 2:  # Bottom 2 positions (direct relegation)
+        row_class = "relegation-direct"
+    elif i == max_bets - 3:  # 3rd from bottom position (playoff)
+        row_class = "relegation-playoff"
+    
+    html_content += f'                        <tr class="{row_class}">\n'
     html_content += f'                            <td>{i+1}</td>\n'
     
     for user in bets.keys():
@@ -417,6 +861,7 @@ html_output.write(html_content)
 html_output.close()
 readme.close()
 
-print("✓ Successfully generated both files!")
-print("  - index.html: Dark mode design with proper alternating row colors")
+print("✓ Successfully generated files with improved relegation statistics!")
+print("  - index.html: Dark mode design with proper relegation highlighting")
 print("  - README.md: Original GitHub format preserved")
+print("  - Ties in standings are now sorted alphabetically")
