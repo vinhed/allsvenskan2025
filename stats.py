@@ -277,10 +277,10 @@ html_content = '''<!DOCTYPE html>
             --row-hover: #303030;
             --header-bg: #111111;
             --border-color: #333333;
-            --relegation-direct: rgba(220, 53, 69, 0.2);
-            --relegation-playoff: rgba(255, 193, 7, 0.1);
-            --europaleague: rgba(113, 83, 219, 0.2);
-            --conferenceLeague: rgba(0, 128, 255, 0.1);
+            --relegation-direct: rgba(74, 38, 35, 1);
+            --relegation-playoff: rgba(201, 127, 81, 1);
+            --europaleague: rgba(56, 107, 46, 1);
+            --conferenceLeague: rgba(61, 87, 56, 1);
         }
         
         * {
@@ -293,7 +293,7 @@ html_content = '''<!DOCTYPE html>
         body {
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            line-height: 1.6;
+            line-height: 1.5;
         }
         
         /* Main container */
@@ -366,7 +366,7 @@ html_content = '''<!DOCTYPE html>
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 12px;
         }
         
         /* Table header */
@@ -386,7 +386,7 @@ html_content = '''<!DOCTYPE html>
         thead th:first-child {
             position: sticky;
             left: 0;
-            z-index: 20;
+            z-index: 200;
         }
         
         /* Table body - alternating rows for entire rows */
@@ -404,8 +404,8 @@ html_content = '''<!DOCTYPE html>
         
         /* Table cells */
         td {
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 6px 6px;
+            border-bottom: 2px solid var(--border-color);
         }
         
         /* First column - fixed */
@@ -414,6 +414,7 @@ html_content = '''<!DOCTYPE html>
             position: sticky;
             left: 0;
             z-index: 5;
+            border-right: 2px solid var(--border-color);
         }
         
         /* Ensure first column matches row background */
@@ -470,19 +471,19 @@ html_content = '''<!DOCTYPE html>
         
         /* Ensure rows keep their styling on hover */
         tr.europaleague:hover td {
-            background-color: rgba(113, 83, 219, 0.3);
+            background-color: rgba(39, 61, 29, 1);
         }
         
         tr.europaleague:hover td:first-child {
-            background-color: rgba(113, 83, 219, 0.3);
+            background-color: rgba(39, 61, 29, 1);
         }
         
         tr.conference-league:hover td {
-            background-color: rgba(0, 128, 255, 0.2);
+            background-color: rgba(63, 79, 60, 1);
         }
         
         tr.conference-league:hover td:first-child {
-            background-color: rgba(0, 128, 255, 0.2);
+            background-color: rgba(63, 79, 60, 1);
         }
         
         tr.relegation-direct:hover td {
@@ -708,7 +709,7 @@ html_content = '''<!DOCTYPE html>
         
         <!-- Fun Stats Section -->
         <section class="fun-stats-section">
-            <h2 class="section-title"><span class="icon">🎮</span> Fun Stats</h2>
+            <h2 class="section-title"><span class="icon">🎮</span> Statistics</h2>
             <p class="section-description">Interesting insights from everyone's predictions</p>
             
             <div class="fun-stats-grid">
@@ -819,12 +820,12 @@ html_content += '''
                 <table id="standings-table">
                     <thead>
                         <tr>
-                            <th>Rank</th>
+                            <th>Position</th>
                             <th>Team</th>
                             <th>Score</th>
                         </tr>
-                    </thead>'
-                    '<tbody>
+                    </thead>
+                    <tbody>
 '''
 
 # Add standings table rows with relegation highlighting and European qualification
@@ -835,10 +836,8 @@ for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items()):
     
     # Add medals to top 3
     if pos == 0:
-        position_display += " 🥇"
         row_class = "europaleague"  # 1st place - Europa League
     elif pos == 1 or pos == 2:
-        position_display += " 🥈" if pos == 1 else " 🥉"
         row_class = "conference-league"  # 2nd and 3rd place - Conference League
     # Add relegation classes
     elif pos >= team_count - 2:  # Bottom 2 teams (direct relegation)

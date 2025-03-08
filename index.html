@@ -23,10 +23,10 @@
             --row-hover: #303030;
             --header-bg: #111111;
             --border-color: #333333;
-            --relegation-direct: rgba(220, 53, 69, 0.2);
-            --relegation-playoff: rgba(255, 193, 7, 0.1);
-            --europaleague: rgba(113, 83, 219, 0.2);
-            --conferenceLeague: rgba(0, 128, 255, 0.1);
+            --relegation-direct: rgba(74, 38, 35, 1);
+            --relegation-playoff: rgba(201, 127, 81, 1);
+            --europaleague: rgba(56, 107, 46, 1);
+            --conferenceLeague: rgba(61, 87, 56, 1);
         }
         
         * {
@@ -39,7 +39,7 @@
         body {
             background-color: var(--bg-primary);
             color: var(--text-primary);
-            line-height: 1.6;
+            line-height: 1.5;
         }
         
         /* Main container */
@@ -112,7 +112,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 12px;
         }
         
         /* Table header */
@@ -132,7 +132,7 @@
         thead th:first-child {
             position: sticky;
             left: 0;
-            z-index: 20;
+            z-index: 200;
         }
         
         /* Table body - alternating rows for entire rows */
@@ -150,8 +150,8 @@
         
         /* Table cells */
         td {
-            padding: 12px 15px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 6px 6px;
+            border-bottom: 2px solid var(--border-color);
         }
         
         /* First column - fixed */
@@ -160,6 +160,7 @@
             position: sticky;
             left: 0;
             z-index: 5;
+            border-right: 2px solid var(--border-color);
         }
         
         /* Ensure first column matches row background */
@@ -216,19 +217,19 @@
         
         /* Ensure rows keep their styling on hover */
         tr.europaleague:hover td {
-            background-color: rgba(113, 83, 219, 0.3);
+            background-color: rgba(39, 61, 29, 1);
         }
         
         tr.europaleague:hover td:first-child {
-            background-color: rgba(113, 83, 219, 0.3);
+            background-color: rgba(39, 61, 29, 1);
         }
         
         tr.conference-league:hover td {
-            background-color: rgba(0, 128, 255, 0.2);
+            background-color: rgba(63, 79, 60, 1);
         }
         
         tr.conference-league:hover td:first-child {
-            background-color: rgba(0, 128, 255, 0.2);
+            background-color: rgba(63, 79, 60, 1);
         }
         
         tr.relegation-direct:hover td {
@@ -439,7 +440,7 @@
         <!-- Stats Cards -->
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-value">8</div>
+                <div class="stat-value">9</div>
                 <div class="stat-label">Participants</div>
             </div>
             <div class="stat-card">
@@ -454,7 +455,7 @@
         
         <!-- Fun Stats Section -->
         <section class="fun-stats-section">
-            <h2 class="section-title"><span class="icon">🎮</span> Fun Stats</h2>
+            <h2 class="section-title"><span class="icon">🎮</span> Statistics</h2>
             <p class="section-description">Interesting insights from everyone's predictions</p>
             
             <div class="fun-stats-grid">
@@ -467,31 +468,31 @@
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Direct Relegation Favorite</div>
-                    <div class="fun-stat-value">Halmstad &amp; Värnamo</div>
-                    <div class="fun-stat-description">Most frequently predicted for direct relegation (bottom 2) with 5 each votes</div>
+                    <div class="fun-stat-value">Värnamo</div>
+                    <div class="fun-stat-description">Most frequently predicted for direct relegation (bottom 2) with 6 votes</div>
                 </div>
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Playoff Candidate</div>
-                    <div class="fun-stat-value">Brommapojkarna</div>
+                    <div class="fun-stat-value">Halmstad</div>
                     <div class="fun-stat-description">Most frequently predicted for relegation playoff (14th place) with 2 votes</div>
                 </div>
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Most Divisive Team</div>
                     <div class="fun-stat-value">Brommapojkarna</div>
-                    <div class="fun-stat-description">Highest variance in predicted positions (variance: 10.7)</div>
+                    <div class="fun-stat-description">Highest variance in predicted positions (variance: 9.8)</div>
                 </div>
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">Most Agreed Upon Team</div>
-                    <div class="fun-stat-value">Sirius</div>
-                    <div class="fun-stat-description">Lowest variance in predicted positions (variance: 0.9)</div>
+                    <div class="fun-stat-value">Värnamo</div>
+                    <div class="fun-stat-description">Lowest variance in predicted positions (variance: 1.2)</div>
                 </div>
     
                 <div class="fun-stat-card">
                     <div class="fun-stat-title">The Optimist</div>
-                    <div class="fun-stat-value">Valentino</div>
+                    <div class="fun-stat-value">Erik</div>
                     <div class="fun-stat-description">Ranks top teams higher than others</div>
                 </div>
     
@@ -538,92 +539,92 @@
                 <table id="standings-table">
                     <thead>
                         <tr>
-                            <th>Rank</th>
+                            <th>Position</th>
                             <th>Team</th>
                             <th>Score</th>
                         </tr>
-                    </thead>'
-                    '<tbody>
+                    </thead>
+                    <tbody>
 
                         <tr class="europaleague">
-                            <td>1 🥇</td>
+                            <td>1</td>
                             <td>Hammarby</td>
-                            <td>9</td>
+                            <td>11</td>
                         </tr>
                         <tr class="conference-league">
-                            <td>2 🥈</td>
+                            <td>2</td>
                             <td>AIK</td>
-                            <td>10</td>
+                            <td>14</td>
                         </tr>
                         <tr class="conference-league">
-                            <td>3 🥉</td>
+                            <td>3</td>
                             <td>Malmö</td>
                             <td>18</td>
                         </tr>
                         <tr class="">
                             <td>4</td>
                             <td>Elfsborg</td>
-                            <td>22</td>
+                            <td>25</td>
                         </tr>
                         <tr class="">
                             <td>5</td>
                             <td>Djurgården</td>
-                            <td>33</td>
+                            <td>34</td>
                         </tr>
                         <tr class="">
                             <td>6</td>
                             <td>Mjällby</td>
-                            <td>48</td>
+                            <td>54</td>
                         </tr>
                         <tr class="">
                             <td>7</td>
                             <td>Häcken</td>
-                            <td>56</td>
+                            <td>63</td>
                         </tr>
                         <tr class="">
                             <td>8</td>
-                            <td>Norrköping</td>
-                            <td>66</td>
+                            <td>GAIS</td>
+                            <td>73</td>
                         </tr>
                         <tr class="">
                             <td>9</td>
-                            <td>Sirius</td>
-                            <td>66</td>
+                            <td>Norrköping</td>
+                            <td>74</td>
                         </tr>
                         <tr class="">
                             <td>10</td>
-                            <td>GAIS</td>
-                            <td>68</td>
+                            <td>Sirius</td>
+                            <td>78</td>
                         </tr>
                         <tr class="">
                             <td>11</td>
-                            <td>Brommapojkarna</td>
-                            <td>75</td>
+                            <td>Göteborg</td>
+                            <td>84</td>
                         </tr>
                         <tr class="">
                             <td>12</td>
-                            <td>Göteborg</td>
-                            <td>75</td>
+                            <td>Brommapojkarna</td>
+                            <td>86</td>
                         </tr>
                         <tr class="">
                             <td>13</td>
                             <td>Degerfor</td>
-                            <td>87</td>
+                            <td>100</td>
                         </tr>
                         <tr class="relegation-playoff">
                             <td>14</td>
-                            <td>Östers</td>
-                            <td>107</td>
+                            <td>Halmstad</td>
+                            <td>118</td>
                         </tr>
                         <tr class="relegation-direct">
                             <td>15</td>
-                            <td>Halmstad</td>
-                            <td>108</td>
+                            <td>Östers</td>
+                            <td>121</td>
                         </tr>
                         <tr class="relegation-direct">
                             <td>16</td>
                             <td>Värnamo</td>
-                            <td>112</td>
+                            <td>127</td>
                         </tr>
                     </tbody>
                 </table>
@@ -646,6 +647,7 @@
                             <th>Valentino</th>
                             <th>Vincent</th>
                             <th>Erik</th>
+                            <th>Daniel</th>
                             <th>William</th>
                             <th>Sebastian</th>
                         </tr>
@@ -659,6 +661,7 @@
                             <td>Elfsborg</td>
                             <td>Hammarby</td>
                             <td>Malmö</td>
+                            <td>Malmö</td>
                             <td>AIK</td>
                             <td>Hammarby</td>
                         </tr>
@@ -670,6 +673,7 @@
                             <td>Hammarby</td>
                             <td>AIK</td>
                             <td>Hammarby</td>
+                            <td>Djurgården</td>
                             <td>Malmö</td>
                             <td>Malmö</td>
                         </tr>
@@ -681,6 +685,7 @@
                             <td>AIK</td>
                             <td>Mjällby</td>
                             <td>Djurgården</td>
+                            <td>Hammarby</td>
                             <td>Djurgården</td>
                             <td>AIK</td>
                         </tr>
@@ -690,6 +695,7 @@
                             <td>Elfsborg</td>
                             <td>Elfsborg</td>
                             <td>Djurgården</td>
+                            <td>Elfsborg</td>
                             <td>Elfsborg</td>
                             <td>Elfsborg</td>
                             <td>Häcken</td>
@@ -703,6 +709,7 @@
                             <td>Malmö</td>
                             <td>Malmö</td>
                             <td>AIK</td>
+                            <td>AIK</td>
                             <td>Hammarby</td>
                             <td>Elfsborg</td>
                         </tr>
@@ -714,6 +721,7 @@
                             <td>Mjällby</td>
                             <td>Brommapojkarna</td>
                             <td>Göteborg</td>
+                            <td>GAIS</td>
                             <td>Elfsborg</td>
                             <td>Häcken</td>
                         </tr>
@@ -725,6 +733,7 @@
                             <td>Göteborg</td>
                             <td>Djurgården</td>
                             <td>Häcken</td>
+                            <td>Mjällby</td>
                             <td>Norrköping</td>
                             <td>Djurgården</td>
                         </tr>
@@ -736,6 +745,7 @@
                             <td>Sirius</td>
                             <td>Norrköping</td>
                             <td>GAIS</td>
+                            <td>Häcken</td>
                             <td>Göteborg</td>
                             <td>GAIS</td>
                         </tr>
@@ -746,6 +756,7 @@
                             <td>Mjällby</td>
                             <td>Häcken</td>
                             <td>Sirius</td>
+                            <td>Norrköping</td>
                             <td>Norrköping</td>
                             <td>Sirius</td>
                             <td>Norrköping</td>
@@ -758,6 +769,7 @@
                             <td>Degerfor</td>
                             <td>GAIS</td>
                             <td>Sirius</td>
+                            <td>Göteborg</td>
                             <td>GAIS</td>
                             <td>Göteborg</td>
                         </tr>
@@ -769,6 +781,7 @@
                             <td>Norrköping</td>
                             <td>Degerfor</td>
                             <td>Brommapojkarna</td>
+                            <td>Halmstad</td>
                             <td>Mjällby</td>
                             <td>Sirius</td>
                         </tr>
@@ -780,6 +793,7 @@
                             <td>GAIS</td>
                             <td>Häcken</td>
                             <td>Mjällby</td>
+                            <td>Brommapojkarna</td>
                             <td>Degerfor</td>
                             <td>Brommapojkarna</td>
                         </tr>
@@ -791,6 +805,7 @@
                             <td>Brommapojkarna</td>
                             <td>Göteborg</td>
                             <td>Degerfor</td>
+                            <td>Sirius</td>
                             <td>Värnamo</td>
                             <td>Degerfor</td>
                         </tr>
@@ -802,6 +817,7 @@
                             <td>Värnamo</td>
                             <td>Östers</td>
                             <td>Halmstad</td>
+                            <td>Degerfor</td>
                             <td>Brommapojkarna</td>
                             <td>Värnamo</td>
                         </tr>
@@ -812,6 +828,7 @@
                             <td>Värnamo</td>
                             <td>Halmstad</td>
                             <td>Halmstad</td>
+                            <td>Östers</td>
                             <td>Östers</td>
                             <td>Halmstad</td>
                             <td>Östers</td>
@@ -824,6 +841,7 @@
                             <td>Östers</td>
                             <td>Värnamo</td>
                             <td>Värnamo</td>
+                            <td>Värnamo</td>
                             <td>Östers</td>
                             <td>Halmstad</td>
                         </tr>
@@ -834,7 +852,7 @@
     </div>
     
     <footer>
-        <div>Updated on March 08, 2025 at 09:09</div>
+        <div>Updated on March 08, 2025 at 12:04</div>
         <div>Allsvenskan 2025 Prediction League</div>
     </footer>
 </body>
