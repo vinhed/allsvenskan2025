@@ -194,7 +194,7 @@ def generate_live_standings_html(standings, bets):
             <table id="current-leaderboard-table">
                 <thead>
                     <tr>
-                        <th>Position</th>
+                        <th>#</th>
                         <th>Participant</th>
                         <th>Score</th>
                         <th>Percentage</th>

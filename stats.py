@@ -341,7 +341,7 @@ def generate_enhanced_standings_table(sorted_allsvenskan_tip_2025, bets, team_lo
             <table id="standings-table">
                 <thead>
                     <tr>
-                        <th>Consensus Rank</th>
+                        <th>#</th>
                         <th>Team</th>
                         <th>Avg. Position</th>
                         <th>Highest Rank</th>
@@ -460,7 +460,7 @@ standings_table_html = '''
                 <table id="standings-table">
                     <thead>
                         <tr>
-                            <th>Position</th>
+                            <th>#</th>
                             <th>Team</th>
                             <th>Score</th>
                         </tr>
@@ -516,7 +516,7 @@ predictions_table_html = '''
                 <table id="predictions-table">
                     <thead>
                         <tr>
-                            <th>Pos</th>
+                            <th>#</th>
 '''
 
 # Add user headers
@@ -891,7 +891,7 @@ def generate_enhanced_standings_table(sorted_allsvenskan_tip_2025, bets, team_lo
             <table id="standings-table">
                 <thead>
                     <tr>
-                        <th>Consensus Rank</th>
+                        <th>#</th>
                         <th>Team</th>
                         <th>Avg. Position</th>
                         <th>Highest Rank</th>
@@ -1273,6 +1273,8 @@ html_content = '''<!DOCTYPE html>
             left: 0;
             z-index: 5;
             border-right: 2px solid var(--border-color);
+            text-align: center;
+            width: 40px;
         }
         
         /* Ensure first column matches row background */
@@ -1726,7 +1728,7 @@ html_content = '''<!DOCTYPE html>
 
         #standings-table th:nth-child(1),
         #standings-table td:nth-child(1) {
-            width: 80px;
+            width: 40px;
             text-align: center;
         }
 
@@ -1949,7 +1951,7 @@ html_content += '''
                 <table id="predictions-table">
                     <thead>
                         <tr>
-                            <th>Pos</th>
+                            <th>#</th>
 '''
 
 # Add user headers
