@@ -3,108 +3,162 @@
 | -------- | ----------------- | ----- |
 | 1        | AIK               | 4     |
 | 2        | Hammarby          | 4     |
-| 3        | IF Elfsborg       | 10    |
-| 4        | Malmö FF          | 16    |
+| 3        | Elfsborg       | 10    |
+| 4        | Malmö          | 16    |
 | 5        | Djurgården        | 23    |
-| 6        | Mjällby AIF       | 24    |
-| 7        | IK Sirius         | 39    |
-| 8        | IF Brommapojkarna | 41    |
-| 9        | BK Häcken         | 42    |
-| 10       | IFK Norrköping    | 44    |
+| 6        | Mjällby       | 24    |
+| 7        | Sirius         | 39    |
+| 8        | Brommapojkarna | 41    |
+| 9        | Häcken         | 42    |
+| 10       | Norrköping    | 44    |
 | 11       | GAIS              | 45    |
-| 12       | Degerfors         | 52    |
-| 13       | IFK Göteborg      | 54    |
-| 14       | Östers IF         | 64    |
-| 15       | Halmstads BK      | 66    |
-| 16       | IFK Värnamo       | 72    |
+| 12       | Degerfor         | 52    |
+| 13       | Göteborg      | 54    |
+| 14       | Östers         | 64    |
+| 15       | Halmstad      | 66    |
+| 16       | Värnamo       | 72    |
 
 # Grabbarns Bet
 ## Henke
 1. AIK
-2. IF Elfsborg
+2. Elfsborg
 3. Hammarby
-4. Mjällby AIF
-5. Malmö FF
+4. Mjällby
+5. Malmö
 6. Djurgården
-7. BK Häcken
-8. IFK Norrköping
-9. IK Sirius
-10. Degerfors
+7. Häcken
+8. Norrköping
+9. Sirius
+10. Degerfor
 11. GAIS
-12. Östers IF
-13. IFK Göteborg
-14. IF Brommapojkarna
-15. Halmstads BK
-16. IFK Värnamo
+12. Östers
+13. Göteborg
+14. Brommapojkarna
+15. Halmstad
+16. Värnamo
 
 ## Jonte
 1. Hammarby
 2. AIK
-3. Malmö FF
-4. IF Elfsborg
+3. Malmö
+4. Elfsborg
 5. Djurgården
-6. IF Brommapojkarna
-7. Mjällby AIF
-8. IK Sirius
-9. IFK Norrköping
-10. Degerfors
-11. BK Häcken
+6. Brommapojkarna
+7. Mjällby
+8. Sirius
+9. Norrköping
+10. Degerfor
+11. Häcken
 12. GAIS
-13. Östers IF
-14. Halmstads BK
-15. IFK Göteborg
-16. IFK Värnamo
+13. Östers 
+14. Halmstad
+15. Göteborg
+16. Värnamo
 
 ## Adrian
 1. AIK
 2. Hammarby
-3. Malmö FF
-4. IF Elfsborg
+3. Malmö
+4. Elfsborg
 5. GAIS
 6. Djurgården
-7. IF Brommapojkarna
-8. BK Häcken
-9. Mjällby AIF
-10. IK Sirius
-11. IFK Göteborg
-12. Halmstads BK
-13. IFK Norrköping
-14. Östers IF
-15. IFK Värnamo
-16. Degerfors
+7. Brommapojkarna
+8. Häcken
+9. Mjällby
+10. Sirius
+11. Göteborg
+12. Halmstad
+13. Norrköping
+14. Östers
+15. Värnamo
+16. Degerfor
 
 ## Valentino
-1. IF Elfsborg
+1. Elfsborg
 2. Hammarby
 3. AIK
 4. Djurgården
-5. Malmö FF
-6. Mjällby AIF
-7. IFK Göteborg
-8. IK Sirius
-9. BK Häcken
-10. Degerfors
-11. IFK Norrköping
+5. Malmö
+6. Mjällby
+7. Göteborg
+8. Sirius
+9. Häcken
+10. Degerfor
+11. Norrköping
 12. GAIS
-13. IF Brommapojkarna
-14. IFK Värnamo
-15. Halmstads BK
-16. Östers IF
+13. Brommapojkarna
+14. Värnamo
+15. Halmstad
+16. Östers
 
 ## Vincent
 1. Hammarby
 2. AIK
-3. Mjällby AIF
-4. IF Elfsborg
-5. Malmö FF
-6. IF Brommapojkarna
+3. Mjällby
+4. Elfsborg
+5. Malmö
+6. Brommapojkarna
 7. Djurgården
-8. IFK Norrköping
-9. IK Sirius
+8. Norrköping
+9. Sirius
 10. GAIS
-11. Degerfors
-12. BK Häcken
-13. IFK Göteborg
-14. Östers IF
-15. Halmstads BK
-16. IFK Värnamo
+11. Degerfor
+12. Häcken
+13. Göteborg
+14. Östers
+15. Halmstad
+16. Värnamo
+
+## Erik
+1. Malmö
+2. Hammarby
+3. Djurgården
+4. Elfsborg
+5. AIK
+6. Göteborg
+7. Häcken
+8. GAIS
+9. Norrköping
+10. Sirius
+11. Brommapojkarna
+12. Mjällby
+13. Degerfor
+14. Halmstad
+15. Östers
+16. Värnamo
+
+## William
+1. AIK
+2. Malmö
+3. Djurgården
+4. Häcken
+5. Hammarby
+6. Elfsborg
+7. Norrköping
+8. Göteborg
+9. Sirius
+10. GAIS
+11. Mjällby
+12. Degerfor
+13. Värnamo
+14. Brommapojkarna
+15. Halmstad
+16. Östers
+
+## Sebastian
+1. Hammarby
+2. Malmö
+3. AIK
+4. Mjällby
+5. Elfsborg
+6. Häcken
+7. Djurgården
+8. GAIS
+9. Norrköping
+10. Göteborg
+11. Sirius
+12. Brommapojkarna
+13. Degerfor
+14. Värnamo
+15. Östers
+16. Halmstad
