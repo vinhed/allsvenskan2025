@@ -16,7 +16,7 @@
 |  10 | Sirius         |      78 |
 |  11 | Göteborg       |      84 |
 |  12 | Brommapojkarna |      86 |
-|  13 | Degerfor       |     100 |
+|  13 | Degerfors      |     100 |
 |  14 | Halmstad       |     118 |
 |  15 | Östers         |     121 |
 |  16 | Värnamo        |     127 |
@@ -33,10 +33,10 @@
 |   7 | Häcken         | Mjällby        | Brommapojkarna | Göteborg       | Djurgården     | Häcken         | Mjällby        | Norrköping     | Djurgården     |
 |   8 | Norrköping     | Sirius         | Häcken         | Sirius         | Norrköping     | GAIS           | Häcken         | Göteborg       | GAIS           |
 |   9 | Sirius         | Norrköping     | Mjällby        | Häcken         | Sirius         | Norrköping     | Norrköping     | Sirius         | Norrköping     |
-|  10 | Degerfor       | Degerfor       | Sirius         | Degerfor       | GAIS           | Sirius         | Göteborg       | GAIS           | Göteborg       |
-|  11 | GAIS           | Häcken         | Göteborg       | Norrköping     | Degerfor       | Brommapojkarna | Halmstad       | Mjällby        | Sirius         |
-|  12 | Östers         | GAIS           | Halmstad       | GAIS           | Häcken         | Mjällby        | Brommapojkarna | Degerfor       | Brommapojkarna |
-|  13 | Göteborg       | Östers         | Norrköping     | Brommapojkarna | Göteborg       | Degerfor       | Sirius         | Värnamo        | Degerfor       |
-|  14 | Brommapojkarna | Halmstad       | Östers         | Värnamo        | Östers         | Halmstad       | Degerfor       | Brommapojkarna | Värnamo        |
+|  10 | Degerfors      | Degerfors      | Sirius         | Degerfors      | GAIS           | Sirius         | Göteborg       | GAIS           | Göteborg       |
+|  11 | GAIS           | Häcken         | Göteborg       | Norrköping     | Degerfors      | Brommapojkarna | Halmstad       | Mjällby        | Sirius         |
+|  12 | Östers         | GAIS           | Halmstad       | GAIS           | Häcken         | Mjällby        | Brommapojkarna | Degerfors      | Brommapojkarna |
+|  13 | Göteborg       | Östers         | Norrköping     | Brommapojkarna | Göteborg       | Degerfors      | Sirius         | Värnamo        | Degerfors      |
+|  14 | Brommapojkarna | Halmstad       | Östers         | Värnamo        | Östers         | Halmstad       | Degerfors      | Brommapojkarna | Värnamo        |
 |  15 | Halmstad       | Göteborg       | Värnamo        | Halmstad       | Halmstad       | Östers         | Östers         | Halmstad       | Östers         |
-|  16 | Värnamo        | Värnamo        | Degerfor       | Östers         | Värnamo        | Värnamo        | Värnamo        | Östers         | Halmstad       |
+|  16 | Värnamo        | Värnamo        | Degerfors      | Östers         | Värnamo        | Värnamo        | Värnamo        | Östers         | Halmstad       |
