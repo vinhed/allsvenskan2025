@@ -260,169 +260,6 @@ def debug_api_teams(api_data):
     
     print("="*50)
 
-def generate_enhanced_standings_table(sorted_allsvenskan_tip_2025, bets, team_logos):
-    """
-    Generate HTML for an enhanced consensus standings table with additional statistics
-    """
-    # Calculate additional statistics for each team
-    team_stats = {}
-    
-    for team in sorted_allsvenskan_tip_2025.keys():
-        positions = []
-        
-        # Collect all positions where this team was placed
-        for user, predictions in bets.items():
-            if team in predictions:
-                pos = predictions.index(team) + 1  # Convert to 1-based position
-                positions.append(pos)
-        
-        # Calculate statistics if we have positions
-        if positions:
-            avg_pos = sum(positions) / len(positions)
-            highest_pos = min(positions)  # Lowest number = highest position
-            lowest_pos = max(positions)   # Highest number = lowest position
-            median_pos = sorted(positions)[len(positions) // 2] if len(positions) % 2 != 0 else (
-                sorted(positions)[len(positions) // 2 - 1] + sorted(positions)[len(positions) // 2]
-            ) / 2
-            
-            # Calculate how many users predicted this team for each position group
-            top3 = sum(1 for p in positions if p <= 3)
-            top3_pct = (top3 / len(positions)) * 100
-            
-            europa = sum(1 for p in positions if p == 1)
-            europa_pct = (europa / len(positions)) * 100
-            
-            conference = sum(1 for p in positions if p in [2, 3])
-            conference_pct = (conference / len(positions)) * 100
-            
-            relegation = sum(1 for p in positions if p >= len(sorted_allsvenskan_tip_2025) - 2)
-            relegation_pct = (relegation / len(positions)) * 100
-            
-            team_stats[team] = {
-                'consensus_pos': list(sorted_allsvenskan_tip_2025.keys()).index(team) + 1,
-                'avg_pos': avg_pos,
-                'highest_pos': highest_pos,
-                'lowest_pos': lowest_pos,
-                'median_pos': median_pos,
-                'top3_pct': top3_pct,
-                'europa_pct': europa_pct,
-                'conference_pct': conference_pct,
-                'relegation_pct': relegation_pct,
-                'predictions_count': len(positions),
-                'value': sorted_allsvenskan_tip_2025[team]
-            }
-    
-    # Start generating the HTML
-    html = '''
-    <section class="section">
-        <h2 class="section-title"><span class="icon">📊</span> Consensus Rankings & Team Statistics</h2>
-        <p class="section-description">Comprehensive analysis of each team's predictions across all participants.</p>
-        
-        <div class="legend">
-            <div class="legend-item">
-                <div class="legend-color legend-europaleague"></div>
-                <span>Europa League (1st Place)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color legend-conference"></div>
-                <span>Conference League (2nd-3rd Place)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color legend-direct"></div>
-                <span>Direct Relegation (Bottom 2)</span>
-            </div>
-            <div class="legend-item">
-                <div class="legend-color legend-playoff"></div>
-                <span>Relegation Playoff (14th Place)</span>
-            </div>
-        </div>
-        
-        <div class="table-wrapper">
-            <table id="standings-table">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Team</th>
-                        <th>Avg. Position</th>
-                        <th>Highest Rank</th>
-                        <th>Lowest Rank</th>
-                        <th>Top 3</th>
-                        <th>Relegation</th>
-                    </tr>
-                </thead>
-                <tbody>
-    '''
-    
-    team_count = len(sorted_allsvenskan_tip_2025)
-    
-    for pos, (team, value) in enumerate(sorted_allsvenskan_tip_2025.items()):
-        if team not in team_stats:
-            continue
-            
-        stats = team_stats[team]
-        row_class = ""
-        
-        # Add classes for relegation and European qualification
-        if pos == 0:
-            row_class = "europaleague"
-        elif pos == 1 or pos == 2:
-            row_class = "conference-league"
-        elif pos >= team_count - 2:
-            row_class = "relegation-direct"
-        elif pos == team_count - 3:
-            row_class = "relegation-playoff"
-        
-        # Get team logo if available
-        logo_url = team_logos.get(team, '')
-        logo_html = f'<img src="{logo_url}" alt="{team} logo" class="team-logo" onerror="this.style.display=\'none\'">' if logo_url else ''
-        
-        # Format the stats
-        avg_pos = f"{stats['avg_pos']:.1f}"
-        top3_pct = f"{stats['top3_pct']:.0f}%"
-        relegation_pct = f"{stats['relegation_pct']:.0f}%"
-        
-        # Generate a mini bar chart for top3 percentage
-        top3_bar = f'''
-            <div class="mini-bar-container">
-                <div class="mini-bar top3-bar" style="width: {stats['top3_pct']}%"></div>
-                <span class="mini-bar-text">{top3_pct}</span>
-            </div>
-        '''
-        
-        # Generate a mini bar chart for relegation percentage
-        relegation_bar = f'''
-            <div class="mini-bar-container">
-                <div class="mini-bar relegation-bar" style="width: {stats['relegation_pct']}%"></div>
-                <span class="mini-bar-text">{relegation_pct}</span>
-            </div>
-        '''
-        
-        html += f'''
-            <tr class="{row_class}">
-                <td>{pos+1}</td>
-                <td>
-                    <div class="team-name-with-logo">
-                        {logo_html}
-                        <span>{escape(team)}</span>
-                    </div>
-                </td>
-                <td>{avg_pos}</td>
-                <td>{stats['highest_pos']}</td>
-                <td>{stats['lowest_pos']}</td>
-                <td>{top3_bar}</td>
-                <td>{relegation_bar}</td>
-            </tr>
-        '''
-    
-    html += '''
-                </tbody>
-            </table>
-        </div>
-    </section>
-    '''
-    
-    return html
-
 def get_api_data():
     """
     Try to get the API data from various sources
@@ -866,7 +703,6 @@ def generate_enhanced_standings_table(sorted_allsvenskan_tip_2025, bets, team_lo
     html = '''
     <section class="section">
         <h2 class="section-title"><span class="icon">📊</span> Consensus Rankings & Team Statistics</h2>
-        <p class="section-description">Comprehensive analysis of each team's predictions across all participants.</p>
         
         <div class="legend">
             <div class="legend-item">
@@ -1842,7 +1678,6 @@ html_content = '''<!DOCTYPE html>
         <!-- Fun Stats Section -->
         <section class="fun-stats-section">
             <h2 class="section-title"><span class="icon">🎮</span> Statistics</h2>
-            <p class="section-description">Interesting insights from everyone's predictions</p>
             
             <div class="fun-stats-grid">
 '''
@@ -1945,7 +1780,6 @@ html_content += '''
         <!-- Individual Predictions Section -->
         <section class="section">
             <h2 class="section-title"><span class="icon">🔮</span> Individual Predictions</h2>
-            <p class="section-description">Each column represents a participant's predicted final table positions.</p>
             
             <div class="table-wrapper">
                 <table id="predictions-table">
