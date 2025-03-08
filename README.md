@@ -1,6 +1,7 @@
 # 🏆 Grabbarnas Allsvenskan 2025 🏆
 
 ## 📊 Current Standings
+`Calculated based on everyones prediction (lower score is better)`
 |   # | Team           |   Value |
 |-----|----------------|---------|
 |   1 | Hammarby       |       9 |
